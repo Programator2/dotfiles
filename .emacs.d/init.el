@@ -1420,6 +1420,19 @@ the first directory in `bibtex-completion-library-path'."
 			      (require 'lsp-pylsp)
 			      (lsp))))
 
+;;; Rust
+
+(use-package cargo)
+(use-package rust-mode)
+(use-package toml-mode
+  :mode "/\\(Cargo.lock\\|\\.cargo/config\\)\\'")
+(use-package ron-mode
+  :mode ("\\.ron\\'" . ron-mode)
+  :defer t)
+(use-package flycheck-rust
+  :defer t
+  :init (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+
 (defun rod-copy-whole-buffer ()
   "Copy whole buffer."
   (interactive)
