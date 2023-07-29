@@ -980,6 +980,10 @@ the first directory in `bibtex-completion-library-path'."
 (global-set-key (kbd "M-;") 'comment-line)
 (global-set-key (kbd "C-x C-;") 'comment-dwim)
 
+(global-set-key [f9]
+		(lambda () (interactive)
+		  (sgml-tag "p")))
+
 ;; theme & font
 (use-package doom-themes
   :init
@@ -1228,7 +1232,7 @@ the first directory in `bibtex-completion-library-path'."
 ;; Plex Mono has italics
 ;; (set-frame-font "IBM Plex Mono-16" nil t)  ;; quite high
 
-(when (member "Cascadia Code-11" (font-family-list))
+(when (member "Cascadia Code" (font-family-list))
   (set-frame-font "Cascadia Code-11" nil t))
 
 ;; light, smaller height than fira
@@ -1302,7 +1306,12 @@ the first directory in `bibtex-completion-library-path'."
 (use-package tex
   ;; Test if work on Windows or change to auctex
   :ensure nil				; package is called auctex
-  :bind ("C-c C-g" . pdf-sync-forward-search)
+
+  ;; This is a function from pdf-tools. I have to find a way to properly bind it
+  ;; without errors.
+  ;;
+  ;; :bind ("C-c C-g" . pdf-sync-forward-search)
+
   :init
   (progn
     (setq TeX-auto-save t
@@ -1451,6 +1460,14 @@ the first directory in `bibtex-completion-library-path'."
    str))
 
 ;; (advice-add 'current-kill :filter-return #'rod-replace-at)
+
+(defun rod-remove-prefix (str)
+  "Advice function for mail addresses from AIS"
+  (string-remove-prefix
+   "https://uim.fei.stuba.sk"
+   str))
+
+(advice-add 'current-kill :filter-return #'rod-remove-prefix)
 
 (defun rod-kill-current-buffer-and-enter-dired ()
   (interactive)
@@ -2074,8 +2091,7 @@ Windows format."
   ;;
   ;; :hook (prog-mode-hook org-mode-hook latex-mode-hook)
   :custom (sp-base-key-bindings 'sp)
-  :init
-  (setq sp-override-key-bindings '(("C-<right>". nil)
+  (sp-override-key-bindings '(("C-<right>". nil)
 				   ("C-<left>" . nil)
 				   ("C-S-<backspace>" . nil)
 				   ("C-M-<right>" . sp-forward-sexp)
@@ -2088,8 +2104,10 @@ Windows format."
 				   ("M-] M-[" . sp-forward-barf-sexp)
 				   ("M-] M-p" . sp-unwrap-sexp)
 				   ("M-[ M-p" . sp-rewrap-sexp)))
+  :init
   (require 'smartparens-config)
-  ;; :config
+  :config
+  (smartparens-global-mode 1)
   ;; (sp-use-smartparens-bindings)
   ;; (sp--update-override-key-bindings)
   :commands (smartparens-mode show-smartparens-mode))
@@ -2858,10 +2876,9 @@ Windows format."
  '(org-use-sub-superscripts '{})
  '(package-menu-async nil)
  '(package-selected-packages
-   '(window-purpose general typescript-mode yaml-mode rg magit ein quickrun name-this-color evil-org helpful dired-narrow helm-pydoc pydoc biblio bui queue cfrs websocket edit-server helm-descbinds keyfreq consult-dir mixed-pitch ef-themes consult-spotify ivy-spotify espotify matlab-mode evil-tex org-panel org-mouse org-protocol tex benchmark-init csv-mode company-auctex company-math company-reftex magic-latex-buffer typo math-symbol-lists maven-test-mode pcsv org-remark dirvish org-web-tools slime-company elquery rebecca-theme gnus-notes gnus-notes-helm org-mru-clock evil-smartparens emacsql-libsqlite3 svg-clock blacken imenu-list calibredb deft msvc fd-dired auctex-latexmk evil-numbers saveplace-pdf-view org-pdftools helm-bbdb sphinx-doc yasnippet expand-region helm-org js2-mode nodejs-repl git-package esup chronos dianyou dired-recent helm-org-rifle darkroom python-docstring smtpmail-multi elfeed evil-surround ggtags diminish disaster pos-tip yapfify evil-mc ivy-posframe counsel-org-clock auto-indent-mode aggressive-indent helm-lsp drag-stuff projectile-git-autofetch go-mode org-pomodoro calfw-org calfw-cal calfw spray hide-mode-line impatient-mode ace-jump-mode all-the-icons-gnus all-the-icons-dired rainbow-mode flycheck-mypy vue-mode web-beautify interleave htmlize ace-window poly-markdown highlight-indent-guides neotree auctex org-present))
+   '(flycheck-rust ron-mode toml-mode rust-mode cargo emacs-gc-stats window-purpose general typescript-mode rg ein quickrun name-this-color evil-org helpful dired-narrow helm-pydoc pydoc biblio bui queue cfrs websocket edit-server helm-descbinds keyfreq consult-dir mixed-pitch ef-themes consult-spotify ivy-spotify espotify matlab-mode evil-tex org-panel org-mouse org-protocol tex benchmark-init csv-mode company-auctex company-math company-reftex magic-latex-buffer typo math-symbol-lists maven-test-mode pcsv org-remark dirvish org-web-tools slime-company elquery rebecca-theme gnus-notes gnus-notes-helm org-mru-clock evil-smartparens emacsql-libsqlite3 svg-clock blacken imenu-list calibredb deft msvc fd-dired auctex-latexmk evil-numbers saveplace-pdf-view org-pdftools helm-bbdb sphinx-doc yasnippet expand-region helm-org js2-mode nodejs-repl git-package esup chronos dianyou dired-recent helm-org-rifle darkroom python-docstring smtpmail-multi elfeed evil-surround ggtags diminish disaster yapfify evil-mc ivy-posframe counsel-org-clock auto-indent-mode aggressive-indent helm-lsp drag-stuff projectile-git-autofetch go-mode org-pomodoro calfw-org calfw-cal calfw spray hide-mode-line impatient-mode ace-jump-mode all-the-icons-gnus all-the-icons-dired rainbow-mode flycheck-mypy vue-mode web-beautify interleave htmlize ace-window poly-markdown highlight-indent-guides neotree auctex org-present))
  '(pdf-view-continuous t)
  '(pdf-view-selection-style 'glyph)
- '(profiler-sampling-interval 10000)
  '(projectile-indexing-method 'alien)
  '(projectile-sort-order 'recentf)
  '(projectile-use-git-grep t)
@@ -2950,10 +2967,6 @@ Windows format."
  '(helm-selection ((((class color) (min-colors 256)) :inherit bold :background "#dae5ec" :extend t :distant-foreground "#531ab6")))
  '(helm-source-header ((((class color) (min-colors 256)) :background "#e0e0e0" :foreground "#531ab6" :weight bold)))
  '(helm-visible-mark ((((class color) (min-colors 256)) :inherit (bold highlight))))
- '(mode-line ((((class color) (min-colors 256)) :box (:line-width 3 :color "#ccdfff"))))
- '(mode-line-inactive ((((class color) (min-colors 256)) :box (:line-width 3 :color "#e6e6e6"))))
- '(org-agenda-date-today ((((class color) (min-colors 256)) :inherit org-agenda-date :background "#f3f3ff" :underline nil)))
- '(tooltip ((((class color) (min-colors 256)) :background "#ccdfff" :foreground "#000000")))
  '(variable-pitch ((t (:family "IBM Plex Sans")))))
 (put 'narrow-to-region 'disabled nil)
 (put 'scroll-left 'disabled nil)
