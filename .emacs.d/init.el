@@ -236,7 +236,8 @@ folder."
   (setq org-log-done 'time)
   (setq org-agenda-include-diary t)
   (setq org-latex-packages-alist '(("" "lmodern" nil)
-				   ("newfloat" "minted" nil)))
+				   ;; ("newfloat" "minted" nil)
+				   ))
   ;; (setq org-latex-listings 'minted)
   ;; org-mode search
   (setq org-agenda-text-search-extra-files
@@ -2876,7 +2877,7 @@ Windows format."
  '(org-use-sub-superscripts '{})
  '(package-menu-async nil)
  '(package-selected-packages
-   '(flycheck-rust ron-mode toml-mode rust-mode cargo emacs-gc-stats window-purpose general typescript-mode rg ein quickrun name-this-color evil-org helpful dired-narrow helm-pydoc pydoc biblio bui queue cfrs websocket edit-server helm-descbinds keyfreq consult-dir mixed-pitch ef-themes consult-spotify ivy-spotify espotify matlab-mode evil-tex org-panel org-mouse org-protocol tex benchmark-init csv-mode company-auctex company-math company-reftex magic-latex-buffer typo math-symbol-lists maven-test-mode pcsv org-remark dirvish org-web-tools slime-company elquery rebecca-theme gnus-notes gnus-notes-helm org-mru-clock evil-smartparens emacsql-libsqlite3 svg-clock blacken imenu-list calibredb deft msvc fd-dired auctex-latexmk evil-numbers saveplace-pdf-view org-pdftools helm-bbdb sphinx-doc yasnippet expand-region helm-org js2-mode nodejs-repl git-package esup chronos dianyou dired-recent helm-org-rifle darkroom python-docstring smtpmail-multi elfeed evil-surround ggtags diminish disaster yapfify evil-mc ivy-posframe counsel-org-clock auto-indent-mode aggressive-indent helm-lsp drag-stuff projectile-git-autofetch go-mode org-pomodoro calfw-org calfw-cal calfw spray hide-mode-line impatient-mode ace-jump-mode all-the-icons-gnus all-the-icons-dired rainbow-mode flycheck-mypy vue-mode web-beautify interleave htmlize ace-window poly-markdown highlight-indent-guides neotree auctex org-present))
+   '(flycheck-rust ron-mode toml-mode rust-mode cargo emacs-gc-stats window-purpose general typescript-mode rg ein quickrun name-this-color evil-org dired-narrow helm-pydoc pydoc biblio bui queue cfrs websocket edit-server helm-descbinds keyfreq consult-dir mixed-pitch ef-themes consult-spotify ivy-spotify espotify matlab-mode evil-tex org-panel org-mouse org-protocol tex benchmark-init csv-mode company-auctex company-math company-reftex magic-latex-buffer typo math-symbol-lists maven-test-mode pcsv org-remark dirvish org-web-tools slime-company elquery rebecca-theme gnus-notes gnus-notes-helm org-mru-clock evil-smartparens emacsql-libsqlite3 svg-clock blacken imenu-list calibredb deft msvc fd-dired auctex-latexmk evil-numbers saveplace-pdf-view org-pdftools helm-bbdb sphinx-doc yasnippet expand-region helm-org js2-mode nodejs-repl git-package esup chronos dianyou dired-recent helm-org-rifle darkroom python-docstring smtpmail-multi evil-surround ggtags diminish disaster yapfify evil-mc ivy-posframe counsel-org-clock auto-indent-mode aggressive-indent helm-lsp drag-stuff projectile-git-autofetch go-mode org-pomodoro calfw-org calfw-cal calfw spray hide-mode-line impatient-mode ace-jump-mode all-the-icons-gnus all-the-icons-dired rainbow-mode flycheck-mypy vue-mode web-beautify interleave htmlize ace-window poly-markdown highlight-indent-guides neotree auctex org-present))
  '(pdf-view-continuous t)
  '(pdf-view-selection-style 'glyph)
  '(projectile-indexing-method 'alien)
