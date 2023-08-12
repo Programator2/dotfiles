@@ -27,18 +27,9 @@
 
 ;; garbage collection activates above 384 MB or when 60 % of the heap has been
 ;; allocated (thanks spacemacs project)
-;; (setq gc-cons-threshold 402653184 gc-cons-percentage 0.6)
+(setq gc-cons-threshold 402653184 gc-cons-percentage 0.6)
 
 ;; Init parts inspired by https://github.com/mrvdb/emacs-config/blob/master/mrb.org
-
-(require 'emacs-gc-stats)
-;; Optionally reset Emacs GC settings to default values (recommended)
-(setq emacs-gc-stats-gc-defaults 'emacs-defaults)
-;; Optionally set reminder to upload the stats after 3 weeks.
-(setq emacs-gc-stats-remind t) ; can also be a number of days
-;; Optionally disable logging the command names
-;; (setq emacs-gc-stats-inhibit-command-name-logging t)
-(emacs-gc-stats-mode +1)
 
 ;; Need to load
 (if (version< emacs-version "27")
@@ -2988,7 +2979,7 @@ Windows format."
 
 ;; change garbage collection to a more suitable value (based on spacemacs, so I
 ;; trust the experts)
-;; (setq gc-cons-threshold 100000000 gc-cons-percentage 0.1)
+(setq gc-cons-threshold 100000000 gc-cons-percentage 0.1)
 
 ;; doom-modeline
 ;;(require 'doom-modeline)
