@@ -743,11 +743,13 @@ the first directory in `bibtex-completion-library-path'."
         eww-download-directory (concat rod-userprofile-directory
 				       "Downloads")
 	flycheck-html-tidy-executable "C:\\Program Files\\tidy 5.8.0\\bin\\tidy.exe"
-	python-shell-interpreter "c:/python311/python.exe"
 	lsp-fsharp-server-install-dir  (rod-concat-userprofile-dir
 					".dotnet/tools/")
+	python-shell-interpreter "c:/python312/python.exe"
 	woman-manpath
-	'("C:/tools/cygwin/usr/man" "C:/tools/cygwin/usr/share/man" "C:/tools/cygwin/usr/local/share/man"
+	`("C:/tools/cygwin/usr/man"
+	  "C:/tools/cygwin/usr/share/man"
+	  "C:/tools/cygwin/usr/local/share/man"
 	  ("/bin" . "/usr/share/man")
 	  ("/usr/bin" . "/usr/share/man")
 	  ("/sbin" . "/usr/share/man")
@@ -971,6 +973,7 @@ the first directory in `bibtex-completion-library-path'."
            (final (if homestyle (rod-concat-documents-dir "System/rod-org-export.css") path))) ;; <- set your own style file path
       ;; (setq org-html-head-include-default-style nil)
       (setq org-html-head (concat
+			   "<base target=\"_blank\">" ; otvori kazdy odkaz na novom tabe
                            "<style type=\"text/css\">\n"
                            "<!--/*--><![CDATA[/*><!--*/\n"
                            (with-temp-buffer
@@ -979,7 +982,7 @@ the first directory in `bibtex-completion-library-path'."
                            "/*]]>*/-->\n"
                            "</style>\n")))))
 (add-hook 'org-export-before-processing-hook 'my-org-inline-css-hook)
-(remove-hook 'org-export-before-processing-hook 'my-org-inline-css-hook)
+;; (remove-hook 'org-export-before-processing-hook 'my-org-inline-css-hook)
 
 ;; Vim-like bindings
 ;; ffap (gf in Vim, so M-g M-f in Emacs)
@@ -1247,7 +1250,7 @@ the first directory in `bibtex-completion-library-path'."
 ;; (set-frame-font "IBM Plex Mono-16" nil t)  ;; quite high
 
 (when (member "Cascadia Code" (font-family-list))
-  (set-frame-font "Cascadia Code-11" nil t))
+  (set-frame-font "Cascadia Code-12" nil t))
 
 ;; light, smaller height than fira
 ;; (set-frame-font "DejaVu Sans Mono-12" nil t)
@@ -1424,9 +1427,9 @@ the first directory in `bibtex-completion-library-path'."
 ;; After installing a new version of python, run this in an administrator shell:
 ;; `pip install pylint flake8'
 (when (eq system-type 'windows-nt)
-      (setq flycheck-python-pylint-executable "c:/python311/python.exe")
-      (setq flycheck-python-flake8-executable "c:/python311/python.exe")
-      (setq flycheck-python-pycompile-executable "c:/python311/python.exe"))
+      (setq flycheck-python-pylint-executable "c:/python312/python.exe")
+      (setq flycheck-python-flake8-executable "c:/python312/python.exe")
+      (setq flycheck-python-pycompile-executable "c:/python312/python.exe"))
 ;; lsp python
 ;;
 ;; TODO: Remove
@@ -1442,6 +1445,20 @@ the first directory in `bibtex-completion-library-path'."
   :hook (python-mode-hook . (lambda ()
 			      (require 'lsp-pylsp)
 			      (lsp))))
+;; pip install python-lsp-server
+
+;;; Rust
+
+(use-package cargo)
+(use-package rust-mode)
+(use-package toml-mode
+  :mode "/\\(Cargo.lock\\|\\.cargo/config\\)\\'")
+(use-package ron-mode
+  :mode ("\\.ron\\'" . ron-mode)
+  :defer t)
+(use-package flycheck-rust
+  :defer t
+  :init (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
 ;;; Rust
 
@@ -1716,16 +1733,22 @@ the current file selected."
 ;; 	(list 'chronos-add-timer time name nil)
 ;; 	(list 'switch-to-buffer chronos--buffer)))
 
-(defun rod-sala ()
-  "Count time until Sala."
-  (interactive)
-  (chronos-add-timer "7" "Sala" nil)
-  (switch-to-buffer chronos--buffer))
-
 (defun rod-nova-bana ()
   "Count time until Nova Bana."
   (interactive)
   (chronos-add-timer "11" "Nová Baňa" nil)
+  (switch-to-buffer chronos--buffer))
+
+(defun rod-podhajska ()
+  "Count time until Podhajska."
+  (interactive)
+  (chronos-add-timer "24" "Podhájska" nil)
+  (switch-to-buffer chronos--buffer))
+
+(defun rod-sala ()
+  "Count time until Sala."
+  (interactive)
+  (chronos-add-timer "7" "Sala" nil)
   (switch-to-buffer chronos--buffer))
 
 (defun rod-bratislava-hlavna-stanica ()
@@ -1818,6 +1841,14 @@ Version 2017-01-11"
   ;; (load-theme 'doom-one-light)
   ;; (load-theme 'spacemacs-light))
   (modus-themes-load-operandi))
+
+(defun rod-convert-cp1250-to-utf8 ()
+  "Revert the current buffer in cp1250 and save it as utf8."
+  (interactive)
+  (revert-buffer-with-coding-system 'windows-1250)
+  (set-buffer-file-coding-system 'utf-8)
+  (save-buffer)
+  (kill-current-buffer))
 
 ;; edit from firefox
 (use-package edit-server
@@ -2543,12 +2574,14 @@ Windows format."
 (use-package dired+
   :ensure nil)
 
-(use-package evil)
+(use-package evil
 ;; Tutorial: how to use toggle-input-method in evil-mode. You don't have to do
 ;; anything! Insert mode of evil will automatically take the input method that
 ;; was set in Emacs mode. So as long as you have input method set to
 ;; slovak-qwerty in evil insert mode, make sure that input method is toggled in
-;; Emacs mode and you don't have to add hook for it.
+  ;; Emacs mode and you don't have to add hook for it.
+  :config
+  (evil-set-initial-state 'calendar-mode 'emacs))
 
 (use-package evil-org
   :ensure t
@@ -2670,6 +2703,31 @@ Windows format."
   :ensure nil
   :diminish auto-revert-mode)
 
+(use-package good-scroll
+  :bind (
+	 ;; ([next] . good-scroll-up-full-screen)
+	 ;; ([prior] . good-scroll-down-full-screen)
+	 ;; ([next] . scroll-up-command)
+	 ;; ([prior] . scroll-down-command)
+	 ))
+
+(use-package emacs
+  :ensure nil
+  :custom
+  ;; https://www.masteringemacs.org/article/improving-performance-emacs-display-engine
+  ;; https://www.reddit.com/r/emacs/comments/8sw3r0/finally_scrolling_over_large_images_with_pixel/
+  ;; https://www.reddit.com/r/emacs/comments/9rwb4h/why_does_fast_scrolling_freeze_the_screen/
+  ;; https://emacs.stackexchange.com/questions/10354/smooth-mouse-scroll-for-inline-images
+  ;; https://emacs.stackexchange.com/questions/28736/emacs-pointcursor-movement-lag
+  ;; (next-screen-context-lines       2) ;; Number of lines of continuity to retain when scrolling by full screens
+  ;; (scroll-conservatively       10000) ;; only 'jump' when moving this far off the screen
+  ;; (scroll-step                     1) ;; Keyboard scroll one line at a time
+  (mouse-wheel-progressive-speed nil) ;; Don't accelerate scrolling
+  ;; (mouse-wheel-follow-mouse        t) ;; Scroll window under mouse
+  (fast-but-imprecise-scrolling    t) ;; No (less) lag while scrolling lots.
+  ;; (auto-window-vscroll           nil) ;; Cursor move faster
+  )
+
 ;; Press C-SPC repeatedly after C-u C-SPC
 (setq set-mark-command-repeat-pop t)
 
@@ -2774,12 +2832,14 @@ Windows format."
 	      (if time-zone ")")))
  '(calibredb-ids-width 10)
  '(column-number-mode t)
+ '(comint-move-point-for-output 'all)
  '(completion-cycle-threshold 5)
  '(completion-styles '(basic partial-completion substring initials))
  '(custom-safe-themes t)
  '(default-input-method "slovak-qwerty")
  '(dired-dwim-target 'dired-dwim-target-recent)
  '(dired-listing-switches "-agGFhlvD")
+ '(dired-recursive-copies 'always)
  '(display-battery-mode t)
  '(dynamic-completion-mode t)
  '(ef-themes-variable-pitch-ui t)
@@ -2795,8 +2855,7 @@ Windows format."
  '(global-hl-line-sticky-flag t)
  '(gnus-prompt-before-saving t)
  '(gnus-search-use-parsed-queries t nil nil "To easily search using GG. Use from:, body:, recipient:, attachment:, before:, after:.")
- '(gnus-summary-line-format "%U%R%z%I%(%[%D: %-23,23f%]%) %s
-")
+ '(gnus-summary-line-format "%U%R%z%I%(%[%D: %-23,23f%]%) %s\12")
  '(helm-M-x-always-save-history t)
  '(helm-M-x-reverse-history nil)
  '(helm-M-x-show-short-doc t)
@@ -2809,6 +2868,7 @@ Windows format."
  '(image-dired-cmd-create-thumbnail-program "magick")
  '(image-dired-thumb-relief 0)
  '(image-use-external-converter t)
+ '(insert-shebang-ignore-extensions '("txt" "org" "el" "py"))
  '(ivy-hooks-alist '((t . toggle-input-method)))
  '(kill-do-not-save-duplicates t)
  '(kill-ring-max 120)
@@ -2831,6 +2891,7 @@ Windows format."
      "......" "----------------"))
  '(org-babel-python-command "py")
  '(org-capture-use-agenda-date t)
+ '(org-clock-report-include-clocking-task t)
  '(org-expiry-inactive-timestamps t)
  '(org-export-in-background nil)
  '(org-file-apps
@@ -2849,7 +2910,7 @@ Windows format."
  '(org-html-html5-fancy t)
  '(org-html-with-latex 'mathjax)
  '(org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
- '(org-image-actual-width 600)
+ '(org-image-actual-width '(450))
  '(org-latex-pdf-process
    '("%latex -interaction nonstopmode -shell-escape -output-directory %o %f" "%latex -interaction nonstopmode -shell-escape -output-directory %o %f" "%latex -interaction nonstopmode -shell-escape -output-directory %o %f"))
  '(org-latex-tables-booktabs t)
@@ -2890,7 +2951,7 @@ Windows format."
  '(org-use-sub-superscripts '{})
  '(package-menu-async nil)
  '(package-selected-packages
-   '(flycheck-rust ron-mode toml-mode rust-mode cargo emacs-gc-stats window-purpose general typescript-mode rg ein quickrun name-this-color evil-org dired-narrow helm-pydoc pydoc biblio bui queue cfrs websocket edit-server helm-descbinds keyfreq consult-dir mixed-pitch ef-themes consult-spotify ivy-spotify espotify matlab-mode evil-tex org-panel org-mouse org-protocol tex benchmark-init csv-mode company-auctex company-math company-reftex magic-latex-buffer typo math-symbol-lists maven-test-mode pcsv org-remark dirvish org-web-tools slime-company elquery rebecca-theme gnus-notes gnus-notes-helm org-mru-clock evil-smartparens emacsql-libsqlite3 svg-clock blacken imenu-list calibredb deft msvc fd-dired auctex-latexmk evil-numbers saveplace-pdf-view org-pdftools helm-bbdb sphinx-doc yasnippet expand-region helm-org js2-mode nodejs-repl git-package esup chronos dianyou dired-recent helm-org-rifle darkroom python-docstring smtpmail-multi evil-surround ggtags diminish disaster yapfify evil-mc ivy-posframe counsel-org-clock auto-indent-mode aggressive-indent helm-lsp drag-stuff projectile-git-autofetch go-mode org-pomodoro calfw-org calfw-cal calfw spray hide-mode-line impatient-mode ace-jump-mode all-the-icons-gnus all-the-icons-dired rainbow-mode flycheck-mypy vue-mode web-beautify interleave htmlize ace-window poly-markdown highlight-indent-guides neotree auctex org-present))
+   '(good-scroll flycheck-rust ron-mode toml-mode rust-mode cargo emacs-gc-stats insert-shebang nasm-mode notmuch x86-lookup window-purpose general typescript-mode yaml-mode rg magit ein quickrun name-this-color evil-org helpful dired-narrow helm-pydoc pydoc biblio bui queue cfrs websocket edit-server helm-descbinds keyfreq consult-dir mixed-pitch ef-themes consult-spotify ivy-spotify espotify matlab-mode evil-tex org-panel org-mouse org-protocol tex benchmark-init csv-mode company-auctex company-math company-reftex magic-latex-buffer typo math-symbol-lists maven-test-mode pcsv org-remark dirvish org-web-tools slime-company elquery rebecca-theme gnus-notes gnus-notes-helm org-mru-clock evil-smartparens emacsql-libsqlite3 svg-clock blacken imenu-list calibredb deft msvc fd-dired auctex-latexmk evil-numbers saveplace-pdf-view org-pdftools helm-bbdb sphinx-doc yasnippet expand-region helm-org js2-mode nodejs-repl git-package esup chronos dianyou dired-recent helm-org-rifle darkroom python-docstring smtpmail-multi elfeed evil-surround ggtags diminish disaster pos-tip yapfify evil-mc ivy-posframe counsel-org-clock auto-indent-mode aggressive-indent helm-lsp drag-stuff projectile-git-autofetch go-mode org-pomodoro calfw-org calfw-cal calfw spray hide-mode-line impatient-mode ace-jump-mode all-the-icons-gnus all-the-icons-dired rainbow-mode flycheck-mypy vue-mode web-beautify interleave htmlize ace-window poly-markdown highlight-indent-guides neotree auctex org-present))
  '(pdf-view-continuous t)
  '(pdf-view-selection-style 'glyph)
  '(projectile-indexing-method 'alien)
@@ -2906,8 +2967,7 @@ Windows format."
      (vc-git-annotate-switches . "-w")))
  '(save-interprogram-paste-before-kill t)
  '(search-default-mode 'char-fold-to-regexp)
- '(search-whitespace-regexp "[ 	
-]+")
+ '(search-whitespace-regexp "[ \11\15\12]+")
  '(sgml-tag-alist
    '(("!["
       ("ignore" t)
