@@ -1161,6 +1161,7 @@ the first directory in `bibtex-completion-library-path'."
 	(holiday-fixed 12 24 "Štedrý deň")
 	(holiday-fixed 12 26 "Druhý sviatok vianočný")))
 
+;; inspired by https://github.com/xiaoxinghu/dotfiles/blob/master/emacs/.emacs.d/modules/treesitter.el
 (use-package treesit
   :ensure nil ;; internal package
   :commands (treesit-install-language-grammar)
