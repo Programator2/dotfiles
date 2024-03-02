@@ -1161,6 +1161,36 @@ the first directory in `bibtex-completion-library-path'."
 	(holiday-fixed 12 24 "Štedrý deň")
 	(holiday-fixed 12 26 "Druhý sviatok vianočný")))
 
+(use-package treesit
+  :ensure nil ;; internal package
+  :commands (treesit-install-language-grammar)
+  :init
+  (setq treesit-language-source-alist
+    '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+       (c . ("https://github.com/tree-sitter/tree-sitter-c"))
+       (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
+       (css . ("https://github.com/tree-sitter/tree-sitter-css"))
+       (go . ("https://github.com/tree-sitter/tree-sitter-go"))
+       (html . ("https://github.com/tree-sitter/tree-sitter-html"))
+       (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+       (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+       (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+       (make . ("https://github.com/alemuller/tree-sitter-make"))
+       ;; (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
+       (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+       ;; (php . ("https://github.com/tree-sitter/tree-sitter-php"))
+       (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
+       (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
+       (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+       (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+       (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
+       (astro . ("https://github.com/virchau13/tree-sitter-astro"))
+       ;; (zig . ("https://github.com/GrayJack/tree-sitter-zig"))
+       (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
+       ))
+  :config
+  (treesit-major-mode-setup))
+
 ;;; auctex
 ;(require 'tex-site)			; TODO: Why is this here? This shouldn't
 					; really be here. Can you debug it?
@@ -2547,6 +2577,7 @@ Windows format."
   :ensure nil
   :diminish auto-revert-mode)
 
+(require 'good-scroll)
 (use-package good-scroll
   :bind (
 	 ;; ([next] . good-scroll-up-full-screen)
@@ -2795,7 +2826,7 @@ Windows format."
  '(org-use-sub-superscripts '{})
  '(package-menu-async nil)
  '(package-selected-packages
-   '(good-scroll flycheck-rust ron-mode toml-mode rust-mode cargo emacs-gc-stats insert-shebang nasm-mode notmuch x86-lookup window-purpose general typescript-mode yaml-mode rg magit ein quickrun name-this-color evil-org helpful dired-narrow helm-pydoc pydoc biblio bui queue cfrs websocket edit-server helm-descbinds keyfreq consult-dir mixed-pitch ef-themes consult-spotify ivy-spotify espotify matlab-mode evil-tex org-panel org-mouse org-protocol tex benchmark-init csv-mode company-auctex company-math company-reftex magic-latex-buffer typo math-symbol-lists maven-test-mode pcsv org-remark dirvish org-web-tools slime-company elquery rebecca-theme gnus-notes gnus-notes-helm org-mru-clock evil-smartparens emacsql-libsqlite3 svg-clock blacken imenu-list calibredb deft msvc fd-dired auctex-latexmk evil-numbers saveplace-pdf-view org-pdftools helm-bbdb sphinx-doc yasnippet expand-region helm-org js2-mode nodejs-repl git-package esup chronos dianyou dired-recent helm-org-rifle darkroom python-docstring smtpmail-multi elfeed evil-surround ggtags diminish disaster pos-tip yapfify evil-mc ivy-posframe counsel-org-clock auto-indent-mode aggressive-indent helm-lsp drag-stuff projectile-git-autofetch go-mode org-pomodoro calfw-org calfw-cal calfw spray hide-mode-line impatient-mode ace-jump-mode all-the-icons-gnus all-the-icons-dired rainbow-mode flycheck-mypy vue-mode web-beautify interleave htmlize ace-window poly-markdown highlight-indent-guides neotree auctex org-present))
+   '(treesit good-scroll flycheck-rust ron-mode toml-mode rust-mode cargo emacs-gc-stats insert-shebang nasm-mode notmuch x86-lookup window-purpose general typescript-mode yaml-mode rg magit ein quickrun name-this-color evil-org helpful dired-narrow helm-pydoc pydoc biblio bui queue cfrs websocket edit-server helm-descbinds keyfreq consult-dir mixed-pitch ef-themes consult-spotify ivy-spotify espotify matlab-mode evil-tex org-panel org-mouse org-protocol tex benchmark-init csv-mode company-auctex company-math company-reftex magic-latex-buffer typo math-symbol-lists maven-test-mode pcsv org-remark dirvish org-web-tools slime-company elquery rebecca-theme gnus-notes gnus-notes-helm org-mru-clock evil-smartparens emacsql-libsqlite3 svg-clock blacken imenu-list calibredb deft msvc fd-dired auctex-latexmk evil-numbers saveplace-pdf-view org-pdftools helm-bbdb sphinx-doc yasnippet expand-region helm-org js2-mode nodejs-repl git-package esup chronos dianyou dired-recent helm-org-rifle darkroom python-docstring smtpmail-multi elfeed evil-surround ggtags diminish disaster pos-tip yapfify evil-mc ivy-posframe counsel-org-clock auto-indent-mode aggressive-indent helm-lsp drag-stuff projectile-git-autofetch go-mode org-pomodoro calfw-org calfw-cal calfw spray hide-mode-line impatient-mode ace-jump-mode all-the-icons-gnus all-the-icons-dired rainbow-mode flycheck-mypy vue-mode web-beautify interleave htmlize ace-window poly-markdown highlight-indent-guides neotree auctex org-present))
  '(pdf-view-continuous t)
  '(pdf-view-selection-style 'glyph)
  '(projectile-indexing-method 'alien)
@@ -3049,9 +3080,8 @@ Windows format."
   ;; Hook doesn't work. Don't know why. Calling it explicitly after loading the
   ;; theme four lines below.
   ;;
-  ;; (add-hook 'modus-themes-after-load-theme-hook #'rod-modus-themes-custom-faces)
+  (add-hook 'modus-themes-after-load-theme-hook #'rod-modus-themes-custom-faces)
   (load-theme 'modus-operandi :no-confim)
-  (rod-modus-themes-custom-faces)
   )
 
 ;;; diminish
