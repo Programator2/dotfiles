@@ -1,6 +1,6 @@
 ;;; init.el --- Personal EMACS config by Roderik Ploszek -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2018-2023 Roderik Ploszek
+;; Copyright (C) 2018-2024 Roderik Ploszek
 
 ;; Author: Roderik Ploszek <roderik.ploszek@gmail.com>
 
