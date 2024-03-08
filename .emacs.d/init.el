@@ -749,7 +749,9 @@ the first directory in `bibtex-completion-library-path'."
 					".dotnet/tools/")
 	python-shell-interpreter "c:/python312/python.exe"
 	woman-manpath
-	'("C:/tools/cygwin/usr/man" "C:/tools/cygwin/usr/share/man" "C:/tools/cygwin/usr/local/share/man"
+	`("C:/tools/cygwin/usr/man"
+	  "C:/tools/cygwin/usr/share/man"
+	  "C:/tools/cygwin/usr/local/share/man"
 	  ("/bin" . "/usr/share/man")
 	  ("/usr/bin" . "/usr/share/man")
 	  ("/sbin" . "/usr/share/man")
@@ -973,6 +975,7 @@ the first directory in `bibtex-completion-library-path'."
            (final (if homestyle (rod-concat-documents-dir "System/rod-org-export.css") path))) ;; <- set your own style file path
       ;; (setq org-html-head-include-default-style nil)
       (setq org-html-head (concat
+			   "<base target=\"_blank\">" ; otvori kazdy odkaz na novom tabe
                            "<style type=\"text/css\">\n"
                            "<!--/*--><![CDATA[/*><!--*/\n"
                            (with-temp-buffer
@@ -981,7 +984,7 @@ the first directory in `bibtex-completion-library-path'."
                            "/*]]>*/-->\n"
                            "</style>\n")))))
 (add-hook 'org-export-before-processing-hook 'my-org-inline-css-hook)
-(remove-hook 'org-export-before-processing-hook 'my-org-inline-css-hook)
+;; (remove-hook 'org-export-before-processing-hook 'my-org-inline-css-hook)
 
 ;; Vim-like bindings
 ;; ffap (gf in Vim, so M-g M-f in Emacs)
@@ -1249,7 +1252,7 @@ the first directory in `bibtex-completion-library-path'."
 ;; (set-frame-font "IBM Plex Mono-16" nil t)  ;; quite high
 
 (when (member "Cascadia Code" (font-family-list))
-  (set-frame-font "Cascadia Code-11" nil t))
+  (set-frame-font "Cascadia Code-12" nil t))
 
 ;; light, smaller height than fira
 ;; (set-frame-font "DejaVu Sans Mono-12" nil t)
@@ -1719,16 +1722,22 @@ the current file selected."
 ;; 	(list 'chronos-add-timer time name nil)
 ;; 	(list 'switch-to-buffer chronos--buffer)))
 
-(defun rod-sala ()
-  "Count time until Sala."
-  (interactive)
-  (chronos-add-timer "7" "Sala" nil)
-  (switch-to-buffer chronos--buffer))
-
 (defun rod-nova-bana ()
   "Count time until Nova Bana."
   (interactive)
   (chronos-add-timer "11" "Nová Baňa" nil)
+  (switch-to-buffer chronos--buffer))
+
+(defun rod-podhajska ()
+  "Count time until Podhajska."
+  (interactive)
+  (chronos-add-timer "24" "Podhájska" nil)
+  (switch-to-buffer chronos--buffer))
+
+(defun rod-sala ()
+  "Count time until Sala."
+  (interactive)
+  (chronos-add-timer "7" "Sala" nil)
   (switch-to-buffer chronos--buffer))
 
 (defun rod-bratislava-hlavna-stanica ()
@@ -1821,6 +1830,14 @@ Version 2017-01-11"
   ;; (load-theme 'doom-one-light)
   ;; (load-theme 'spacemacs-light))
   (modus-themes-load-operandi))
+
+(defun rod-convert-cp1250-to-utf8 ()
+  "Revert the current buffer in cp1250 and save it as utf8."
+  (interactive)
+  (revert-buffer-with-coding-system 'windows-1250)
+  (set-buffer-file-coding-system 'utf-8)
+  (save-buffer)
+  (kill-current-buffer))
 
 ;; edit from firefox
 (use-package edit-server
@@ -2456,7 +2473,7 @@ Windows format."
     "Open current buffer in system's default PDF reader."
     (interactive)
     (let (($path (if (buffer-file-name) (buffer-file-name) (expand-file-name default-directory ) )))
-      (let ((proc (start-process "sumatra" nil "C:/Users/Roderik/AppData/Local/SumatraPDF/SumatraPDF.exe" $path)))
+      (let ((proc (start-process "sumatra" nil (rod-concat-userprofile-dir "AppData/Local/SumatraPDF/SumatraPDF.exe") $path)))
 	(set-process-query-on-exit-flag proc nil)))))
 
 (use-package elfeed
@@ -2546,12 +2563,14 @@ Windows format."
 (use-package dired+
   :ensure nil)
 
-(use-package evil)
+(use-package evil
 ;; Tutorial: how to use toggle-input-method in evil-mode. You don't have to do
 ;; anything! Insert mode of evil will automatically take the input method that
 ;; was set in Emacs mode. So as long as you have input method set to
 ;; slovak-qwerty in evil insert mode, make sure that input method is toggled in
-;; Emacs mode and you don't have to add hook for it.
+  ;; Emacs mode and you don't have to add hook for it.
+  :config
+  (evil-set-initial-state 'calendar-mode 'emacs))
 
 (use-package evil-org
   :ensure t
@@ -2777,12 +2796,14 @@ Windows format."
 	      (if time-zone ")")))
  '(calibredb-ids-width 10)
  '(column-number-mode t)
+ '(comint-move-point-for-output 'all)
  '(completion-cycle-threshold 5)
  '(completion-styles '(basic partial-completion substring initials))
  '(custom-safe-themes t)
  '(default-input-method "slovak-qwerty")
  '(dired-dwim-target 'dired-dwim-target-recent)
  '(dired-listing-switches "-agGFhlvD")
+ '(dired-recursive-copies 'always)
  '(display-battery-mode t)
  '(dynamic-completion-mode t)
  '(ef-themes-variable-pitch-ui t)
@@ -2798,8 +2819,7 @@ Windows format."
  '(global-hl-line-sticky-flag t)
  '(gnus-prompt-before-saving t)
  '(gnus-search-use-parsed-queries t nil nil "To easily search using GG. Use from:, body:, recipient:, attachment:, before:, after:.")
- '(gnus-summary-line-format "%U%R%z%I%(%[%D: %-23,23f%]%) %s
-")
+ '(gnus-summary-line-format "%U%R%z%I%(%[%D: %-23,23f%]%) %s\12")
  '(helm-M-x-always-save-history t)
  '(helm-M-x-reverse-history nil)
  '(helm-M-x-show-short-doc t)
@@ -2812,6 +2832,7 @@ Windows format."
  '(image-dired-cmd-create-thumbnail-program "magick")
  '(image-dired-thumb-relief 0)
  '(image-use-external-converter t)
+ '(insert-shebang-ignore-extensions '("txt" "org" "el" "py"))
  '(ivy-hooks-alist '((t . toggle-input-method)))
  '(kill-do-not-save-duplicates t)
  '(kill-ring-max 120)
@@ -2834,6 +2855,7 @@ Windows format."
      "......" "----------------"))
  '(org-babel-python-command "py")
  '(org-capture-use-agenda-date t)
+ '(org-clock-report-include-clocking-task t)
  '(org-expiry-inactive-timestamps t)
  '(org-export-in-background nil)
  '(org-file-apps
@@ -2852,7 +2874,7 @@ Windows format."
  '(org-html-html5-fancy t)
  '(org-html-with-latex 'mathjax)
  '(org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
- '(org-image-actual-width 600)
+ '(org-image-actual-width '(450))
  '(org-latex-pdf-process
    '("%latex -interaction nonstopmode -shell-escape -output-directory %o %f" "%latex -interaction nonstopmode -shell-escape -output-directory %o %f" "%latex -interaction nonstopmode -shell-escape -output-directory %o %f"))
  '(org-latex-tables-booktabs t)
@@ -2909,8 +2931,7 @@ Windows format."
      (vc-git-annotate-switches . "-w")))
  '(save-interprogram-paste-before-kill t)
  '(search-default-mode 'char-fold-to-regexp)
- '(search-whitespace-regexp "[ 	
-]+")
+ '(search-whitespace-regexp "[ \11\15\12]+")
  '(sgml-tag-alist
    '(("!["
       ("ignore" t)
