@@ -1087,164 +1087,6 @@ the first directory in `bibtex-completion-library-path'."
   ;; (doom-themes-org-config)
   )
 
-(require 'modus-themes)
-
-;; modus-themes provide much better readability and support of modes than any
-;; other theme currently available. Thank you Prot!
-;;
-;; My historical custom configuration before version 4
-;;  '(modus-themes-tabs-accented t)
-;;  '(modus-themes-syntax nil)
-;;  '(modus-themes-mode-line '(accented borderless 3))
-;;  '(modus-themes-links '(no-underline background))
-;;  '(modus-themes-inhibit-reload nil)
-;;  '(modus-themes-box-buttons '(flat accented variable-pitch))
-;; (use-package modus-themes
-  ;; :config
-(setq modus-themes-bold-constructs t
-      modus-themes-completions '((matches) (selection))
-      modus-themes-headings '((1 rainbow))
-      modus-themes-italic-constructs t
-      modus-themes-mixed-fonts t
-      modus-themes-org-blocks 'tinted-background
-      modus-themes-variable-pitch-ui t)
-(setq modus-themes-common-palette-overrides
-      `(
-	;; From the section "Make the mode line borderless"
-        (border-mode-line-active unspecified)
-        (border-mode-line-inactive unspecified)
-
-	;; Make the fringe invisible
-	(fringe unspecified)
-
-	;; Remove underlines from links
-	(underline-link unspecified)
-        (underline-link-visited unspecified)
-        (underline-link-symbolic unspecified)
-
-	(bg-link bg-blue-nuanced)
-
-	;; Here are contents of `modus-themes-preset-overrides-intense' copied
-	;; here for manual adjustment:
-
-	(bg-region bg-cyan-intense)
-
-	(bg-completion       bg-cyan-subtle)
-	(bg-hover            bg-yellow-intense)
-	(bg-hover-secondary  bg-magenta-intense)
-	;; (bg-hl-line          bg-cyan-subtle)
-
-	(bg-mode-line-active      bg-blue-subtle)
-	(fg-mode-line-active      fg-main)
-	;; (border-mode-line-active  blue-intense)
-
-	;; (fringe bg-inactive)
-	;; (comment red-faint)
-
-	(date-common cyan)
-	(date-deadline red)
-	(date-event blue)
-	(date-holiday magenta-warmer)
-	(date-now blue-faint)
-	(date-scheduled yellow-warmer)
-	(date-weekday fg-main)
-	(date-weekend red-faint)
-
-	;; (keybind blue-intense)
-
-	(mail-cite-0 blue)
-	(mail-cite-1 yellow)
-	(mail-cite-2 green)
-	(mail-cite-3 magenta)
-	(mail-part magenta-cooler)
-	(mail-recipient cyan)
-	(mail-subject red-warmer)
-	(mail-other cyan-cooler)
-
-	;; (fg-prompt blue-intense)
-
-	(prose-block red-faint)
-	(prose-done green-intense)
-	(prose-metadata cyan-faint)
-	(prose-metadata-value blue-cooler)
-	(prose-table cyan)
-	(prose-todo red-intense)
-
-	(fg-heading-0 blue-cooler)
-	(fg-heading-1 magenta-cooler)
-	(fg-heading-2 magenta-warmer)
-	(fg-heading-3 blue)
-	(fg-heading-4 cyan)
-	(fg-heading-5 green-warmer)
-	(fg-heading-6 yellow)
-	(fg-heading-7 red)
-	(fg-heading-8 magenta)
-
-	(bg-tab-bar bg-main)
-        (bg-tab-current bg-cyan-intense)
-        (bg-tab-other bg-inactive)
-
-	;; (bg-heading-0 unspecified)
-	;; (bg-heading-1 bg-magenta-nuanced)
-	;; (bg-heading-2 bg-red-nuanced)
-	;; (bg-heading-3 bg-blue-nuanced)
-	;; (bg-heading-4 bg-cyan-nuanced)
-	;; (bg-heading-5 bg-green-nuanced)
-	;; (bg-heading-6 bg-yellow-nuanced)
-	;; (bg-heading-7 bg-red-nuanced)
-	;; (bg-heading-8 bg-magenta-nuanced)
-
-	;; (overline-heading-0 unspecified)
-	;; (overline-heading-1 magenta-cooler)
-	;; (overline-heading-2 magenta-warmer)
-	;; (overline-heading-3 blue)
-	;; (overline-heading-4 cyan)
-	;; (overline-heading-5 green)
-	;; (overline-heading-6 yellow-cooler)
-	;; (overline-heading-7 red-cooler)
-	;; (overline-heading-8 magenta)
-
-	;; end of `modus-themes-preset-overrides-intense'
-
-	;; ,@modus-themes-preset-overrides-intense
-	)
-      modus-operandi-tinted-palette-overrides
-      `(
-	(bg-mode-line-active      "#cab9b2")
-	))
-(defun rod-modus-themes-custom-faces ()
-  (modus-themes-with-colors
-    (custom-set-faces
-     ;; Make tooltips readable --RP
-     `(tooltip ((,c :background ,bg-blue-subtle :foreground ,fg-main)))
-     ;; Add "padding" to the mode lines
-     `(mode-line ((,c :box (:line-width 3 :color ,bg-mode-line-active))))
-     `(mode-line-inactive ((,c :box (:line-width 3 :color ,bg-mode-line-inactive))))
-       ;;;; helm
-     `(helm-selection              ((,c :inherit bold :background ,bg-hl-line :extend t :distant-foreground ,magenta-cooler)))
-     `(helm-match                  ((,c :inherit bold :foreground ,magenta-cooler :distant-foreground ,fg-main)))
-     `(helm-source-header          ((,c :background ,bg-inactive :foreground ,keyword :weight bold)))
-     `(helm-visible-mark           ((,c :inherit (bold highlight))))
-     `(helm-moccur-buffer          ((,c :inherit link)))
-     `(helm-ff-file                ((,c :foreground ,fg-main)))
-     `(helm-ff-prefix              ((,c :foreground ,keyword)))
-     `(helm-ff-dotted-directory    ((,c :foreground ,fg-alt)))
-     `(helm-ff-directory           ((,c :foreground ,variable)))
-     `(helm-ff-executable          ((,c :foreground ,fg-main :inherit italic)))
-     `(helm-grep-match             ((,c :foreground ,magenta-cooler :distant-foreground ,red-cooler)))
-     `(helm-grep-file              ((,c :foreground ,fnname)))
-     `(helm-grep-lineno            ((,c :foreground ,fg-alt)))
-     `(helm-grep-finish            ((,c :foreground ,cyan-cooler)))
-     `(helm-locate-finish          ((,c :foreground ,green)))
-     `(org-agenda-date-today       ((,c :inherit org-agenda-date :background ,bg-blue-nuanced :underline nil)))
-     )))
-;; (add-hook 'modus-themes-after-load-theme-hook #'rod-modus-themes-custom-faces)
-;; :init
-(load-theme 'modus-operandi :no-confim)
-(rod-modus-themes-custom-faces)
-;; )
-  ;; (load-theme 'modus-operandi :no-confim)
-  ;; (rod-modus-themes-custom-faces))
 
 (use-package all-the-icons
   :if (display-graphic-p))
@@ -1362,6 +1204,37 @@ the first directory in `bibtex-completion-library-path'."
 	(holiday-fixed 11 17 "Deň boja za slobodu a demokraciu")
 	(holiday-fixed 12 24 "Štedrý deň")
 	(holiday-fixed 12 26 "Druhý sviatok vianočný")))
+
+;; inspired by https://github.com/xiaoxinghu/dotfiles/blob/master/emacs/.emacs.d/modules/treesitter.el
+(use-package treesit
+  :ensure nil ;; internal package
+  :commands (treesit-install-language-grammar)
+  :init
+  (setq treesit-language-source-alist
+    '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+       (c . ("https://github.com/tree-sitter/tree-sitter-c"))
+       (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
+       (css . ("https://github.com/tree-sitter/tree-sitter-css"))
+       (go . ("https://github.com/tree-sitter/tree-sitter-go"))
+       (html . ("https://github.com/tree-sitter/tree-sitter-html"))
+       (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+       (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+       (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+       (make . ("https://github.com/alemuller/tree-sitter-make"))
+       ;; (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
+       (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+       ;; (php . ("https://github.com/tree-sitter/tree-sitter-php"))
+       (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
+       (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
+       (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+       (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+       (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
+       (astro . ("https://github.com/virchau13/tree-sitter-astro"))
+       ;; (zig . ("https://github.com/GrayJack/tree-sitter-zig"))
+       (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
+       ))
+  :config
+  (treesit-major-mode-setup))
 
 ;;; auctex
 ;(require 'tex-site)			; TODO: Why is this here? This shouldn't
@@ -2692,9 +2565,11 @@ Windows format."
   :ensure nil
   :diminish auto-revert-mode)
 
+(require 'good-scroll)
 (use-package good-scroll
-  :bind (([next] . good-scroll-up-full-screen)
-	 ([prior] . good-scroll-down-full-screen)
+  :bind (
+	 ;; ([next] . good-scroll-up-full-screen)
+	 ;; ([prior] . good-scroll-down-full-screen)
 	 ;; ([next] . scroll-up-command)
 	 ;; ([prior] . scroll-down-command)
 	 ))
@@ -3014,26 +2889,188 @@ Windows format."
  ;; If there is more than one, they won't work right.
  '(fixed-pitch ((t (:inherit default))))
  '(helm-M-x-short-doc ((t (:foreground "DimGray"))))
- '(helm-ff-directory ((((class color) (min-colors 256)) :foreground "#005e8b")))
- '(helm-ff-dotted-directory ((((class color) (min-colors 256)) :foreground "#193668")))
- '(helm-ff-executable ((((class color) (min-colors 256)) :foreground "#000000" :inherit italic)))
- '(helm-ff-file ((((class color) (min-colors 256)) :foreground "#000000")))
- '(helm-ff-prefix ((((class color) (min-colors 256)) :foreground "#531ab6")))
- '(helm-grep-file ((((class color) (min-colors 256)) :foreground "#721045")))
- '(helm-grep-finish ((((class color) (min-colors 256)) :foreground "#005f5f")))
- '(helm-grep-lineno ((((class color) (min-colors 256)) :foreground "#193668")))
- '(helm-grep-match ((((class color) (min-colors 256)) :foreground "#531ab6" :distant-foreground "#a0132f")))
- '(helm-locate-finish ((((class color) (min-colors 256)) :foreground "#006800")))
- '(helm-match ((((class color) (min-colors 256)) :inherit bold :foreground "#531ab6" :distant-foreground "#000000")))
+ '(helm-ff-directory ((((class color) (min-colors 256)) :foreground "#00d3d0")))
+ '(helm-ff-dotted-directory ((((class color) (min-colors 256)) :foreground "#c6daff")))
+ '(helm-ff-executable ((((class color) (min-colors 256)) :foreground "#ffffff" :inherit italic)))
+ '(helm-ff-file ((((class color) (min-colors 256)) :foreground "#ffffff")))
+ '(helm-ff-prefix ((((class color) (min-colors 256)) :foreground "#b6a0ff")))
+ '(helm-grep-file ((((class color) (min-colors 256)) :foreground "#feacd0")))
+ '(helm-grep-finish ((((class color) (min-colors 256)) :foreground "#6ae4b9")))
+ '(helm-grep-lineno ((((class color) (min-colors 256)) :foreground "#c6daff")))
+ '(helm-grep-match ((((class color) (min-colors 256)) :foreground "#b6a0ff" :distant-foreground "#ff7f9f")))
+ '(helm-locate-finish ((((class color) (min-colors 256)) :foreground "#44bc44")))
+ '(helm-match ((((class color) (min-colors 256)) :inherit bold :foreground "#b6a0ff" :distant-foreground "#ffffff")))
  '(helm-moccur-buffer ((((class color) (min-colors 256)) :inherit link)))
- '(helm-selection ((((class color) (min-colors 256)) :inherit bold :background "#dae5ec" :extend t :distant-foreground "#531ab6")))
- '(helm-source-header ((((class color) (min-colors 256)) :background "#e0e0e0" :foreground "#531ab6" :weight bold)))
+ '(helm-selection ((((class color) (min-colors 256)) :inherit bold :background "#2f3849" :extend t :distant-foreground "#b6a0ff")))
+ '(helm-source-header ((((class color) (min-colors 256)) :background "#303030" :foreground "#b6a0ff" :weight bold)))
  '(helm-visible-mark ((((class color) (min-colors 256)) :inherit (bold highlight))))
  '(variable-pitch ((t (:family "IBM Plex Sans")))))
 (put 'narrow-to-region 'disabled nil)
 (put 'scroll-left 'disabled nil)
 (put 'list-timers 'disabled nil)
 (put 'erase-buffer 'disabled nil)
+
+;; Modus has to be configured after custom-set-faces. Otherwise custom-set-faces
+;; overrides configuration of modus-themes.
+
+(require 'modus-themes)
+
+;; modus-themes provide much better readability and support of modes than any
+;; other theme currently available. Thank you Prot!
+;;
+;; My historical custom configuration before version 4
+;;  '(modus-themes-tabs-accented t)
+;;  '(modus-themes-syntax nil)
+;;  '(modus-themes-mode-line '(accented borderless 3))
+;;  '(modus-themes-links '(no-underline background))
+;;  '(modus-themes-inhibit-reload nil)
+;;  '(modus-themes-box-buttons '(flat accented variable-pitch))
+(use-package modus-themes
+  :config
+  (setq modus-themes-bold-constructs t
+	modus-themes-completions '((matches) (selection))
+	modus-themes-headings '((1 rainbow))
+	modus-themes-italic-constructs t
+	modus-themes-mixed-fonts t
+	modus-themes-org-blocks 'tinted-background
+	modus-themes-variable-pitch-ui t)
+  (setq modus-themes-common-palette-overrides
+	`(
+	  ;; From the section "Make the mode line borderless"
+          (border-mode-line-active unspecified)
+          (border-mode-line-inactive unspecified)
+
+	  ;; Make the fringe invisible
+	  (fringe unspecified)
+
+	  ;; Remove underlines from links
+	  (underline-link unspecified)
+          (underline-link-visited unspecified)
+          (underline-link-symbolic unspecified)
+
+	  (bg-link bg-blue-nuanced)
+
+	  ;; Here are contents of `modus-themes-preset-overrides-intense' copied
+	  ;; here for manual adjustment:
+
+	  (bg-region bg-cyan-intense)
+
+	  (bg-completion       bg-cyan-subtle)
+	  (bg-hover            bg-yellow-intense)
+	  (bg-hover-secondary  bg-magenta-intense)
+	  ;; (bg-hl-line          bg-cyan-subtle)
+
+	  (bg-mode-line-active      bg-blue-subtle)
+	  (fg-mode-line-active      fg-main)
+	  ;; (border-mode-line-active  blue-intense)
+
+	  ;; (fringe bg-inactive)
+	  ;; (comment red-faint)
+
+	  (date-common cyan)
+	  (date-deadline red)
+	  (date-event blue)
+	  (date-holiday magenta-warmer)
+	  (date-now blue-faint)
+	  (date-scheduled yellow-warmer)
+	  (date-weekday fg-main)
+	  (date-weekend red-faint)
+
+	  ;; (keybind blue-intense)
+
+	  (mail-cite-0 blue)
+	  (mail-cite-1 yellow)
+	  (mail-cite-2 green)
+	  (mail-cite-3 magenta)
+	  (mail-part magenta-cooler)
+	  (mail-recipient cyan)
+	  (mail-subject red-warmer)
+	  (mail-other cyan-cooler)
+
+	  ;; (fg-prompt blue-intense)
+
+	  (prose-block red-faint)
+	  (prose-done green-intense)
+	  (prose-metadata cyan-faint)
+	  (prose-metadata-value blue-cooler)
+	  (prose-table cyan)
+	  (prose-todo red-intense)
+
+	  (fg-heading-0 blue-cooler)
+	  (fg-heading-1 magenta-cooler)
+	  (fg-heading-2 magenta-warmer)
+	  (fg-heading-3 blue)
+	  (fg-heading-4 cyan)
+	  (fg-heading-5 green-warmer)
+	  (fg-heading-6 yellow)
+	  (fg-heading-7 red)
+	  (fg-heading-8 magenta)
+
+	  (bg-tab-bar bg-main)
+          (bg-tab-current bg-cyan-intense)
+          (bg-tab-other bg-inactive)
+
+	  ;; (bg-heading-0 unspecified)
+	  ;; (bg-heading-1 bg-magenta-nuanced)
+	  ;; (bg-heading-2 bg-red-nuanced)
+	  ;; (bg-heading-3 bg-blue-nuanced)
+	  ;; (bg-heading-4 bg-cyan-nuanced)
+	  ;; (bg-heading-5 bg-green-nuanced)
+	  ;; (bg-heading-6 bg-yellow-nuanced)
+	  ;; (bg-heading-7 bg-red-nuanced)
+	  ;; (bg-heading-8 bg-magenta-nuanced)
+
+	  ;; (overline-heading-0 unspecified)
+	  ;; (overline-heading-1 magenta-cooler)
+	  ;; (overline-heading-2 magenta-warmer)
+	  ;; (overline-heading-3 blue)
+	  ;; (overline-heading-4 cyan)
+	  ;; (overline-heading-5 green)
+	  ;; (overline-heading-6 yellow-cooler)
+	  ;; (overline-heading-7 red-cooler)
+	  ;; (overline-heading-8 magenta)
+
+	  ;; end of `modus-themes-preset-overrides-intense'
+
+	  ;; ,@modus-themes-preset-overrides-intense
+	  )
+	modus-operandi-tinted-palette-overrides
+	`(
+	  (bg-mode-line-active      "#cab9b2")
+	  ))
+  (defun rod-modus-themes-custom-faces ()
+    (modus-themes-with-colors
+      (custom-set-faces
+       ;; Make tooltips readable --RP
+       `(tooltip ((,c :background ,bg-blue-subtle :foreground ,fg-main)))
+       ;; Add "padding" to the mode lines
+       `(mode-line ((,c :box (:line-width 3 :color ,bg-mode-line-active))))
+       `(mode-line-inactive ((,c :box (:line-width 3 :color ,bg-mode-line-inactive))))
+       ;;;; helm
+       `(helm-selection              ((,c :inherit bold :background ,bg-hl-line :extend t :distant-foreground ,magenta-cooler)))
+       `(helm-match                  ((,c :inherit bold :foreground ,magenta-cooler :distant-foreground ,fg-main)))
+       `(helm-source-header          ((,c :background ,bg-inactive :foreground ,keyword :weight bold)))
+       `(helm-visible-mark           ((,c :inherit (bold highlight))))
+       `(helm-moccur-buffer          ((,c :inherit link)))
+       `(helm-ff-file                ((,c :foreground ,fg-main)))
+       `(helm-ff-prefix              ((,c :foreground ,keyword)))
+       `(helm-ff-dotted-directory    ((,c :foreground ,fg-alt)))
+       `(helm-ff-directory           ((,c :foreground ,variable)))
+       `(helm-ff-executable          ((,c :foreground ,fg-main :inherit italic)))
+       `(helm-grep-match             ((,c :foreground ,magenta-cooler :distant-foreground ,red-cooler)))
+       `(helm-grep-file              ((,c :foreground ,fnname)))
+       `(helm-grep-lineno            ((,c :foreground ,fg-alt)))
+       `(helm-grep-finish            ((,c :foreground ,cyan-cooler)))
+       `(helm-locate-finish          ((,c :foreground ,green)))
+       `(org-agenda-date-today       ((,c :inherit org-agenda-date :background ,bg-blue-nuanced :underline nil)))
+       )))
+
+  ;; Hook doesn't work. Don't know why. Calling it explicitly after loading the
+  ;; theme four lines below.
+  ;;
+  (add-hook 'modus-themes-after-load-theme-hook #'rod-modus-themes-custom-faces)
+  (load-theme 'modus-operandi :no-confim)
+  )
 
 ;;; diminish
 
