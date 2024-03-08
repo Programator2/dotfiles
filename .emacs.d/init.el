@@ -747,7 +747,7 @@ the first directory in `bibtex-completion-library-path'."
 	flycheck-html-tidy-executable "C:\\Program Files\\tidy 5.8.0\\bin\\tidy.exe"
 	lsp-fsharp-server-install-dir  (rod-concat-userprofile-dir
 					".dotnet/tools/")
-	python-shell-interpreter "c:/python311/python.exe"
+	python-shell-interpreter "c:/python312/python.exe"
 	woman-manpath
 	'("C:/tools/cygwin/usr/man" "C:/tools/cygwin/usr/share/man" "C:/tools/cygwin/usr/local/share/man"
 	  ("/bin" . "/usr/share/man")
@@ -1426,9 +1426,9 @@ the first directory in `bibtex-completion-library-path'."
 ;; After installing a new version of python, run this in an administrator shell:
 ;; `pip install pylint flake8'
 (when (eq system-type 'windows-nt)
-      (setq flycheck-python-pylint-executable "c:/python311/python.exe")
-      (setq flycheck-python-flake8-executable "c:/python311/python.exe")
-      (setq flycheck-python-pycompile-executable "c:/python311/python.exe"))
+      (setq flycheck-python-pylint-executable "c:/python312/python.exe")
+      (setq flycheck-python-flake8-executable "c:/python312/python.exe")
+      (setq flycheck-python-pycompile-executable "c:/python312/python.exe"))
 ;; lsp python
 ;;
 ;; TODO: Remove
@@ -1444,6 +1444,7 @@ the first directory in `bibtex-completion-library-path'."
   :hook (python-mode-hook . (lambda ()
 			      (require 'lsp-pylsp)
 			      (lsp))))
+;; pip install python-lsp-server
 
 ;;; Rust
 
