@@ -624,7 +624,7 @@ the first directory in `bibtex-completion-library-path'."
   (occur (concat "\*+ " regexp)))
 (defalias 'rod-org-occur-title 'rod-org-search-title)
 
-(when system-type 'windows-nt
+(when (equal system-type 'windows-nt)
       ;; custom alert style for Windows
       (use-package alert
 	:config
@@ -664,7 +664,9 @@ the first directory in `bibtex-completion-library-path'."
 			    :notifier #'alert-w32-notification-notify)
 	;; :remover #'alert-w32-notification-remove)
 
-	(setq-default alert-default-style 'w32-notification)))
+	(setq alert-default-style 'w32-notification)))
+
+(setq alert-default-style 'notifications)
 
 ;; org latex export to koma script
 (with-eval-after-load "ox-latex"
