@@ -986,11 +986,16 @@ the first directory in `bibtex-completion-library-path'."
 (add-hook 'org-export-before-processing-hook 'my-org-inline-css-hook)
 ;; (remove-hook 'org-export-before-processing-hook 'my-org-inline-css-hook)
 
+;;; personal global keybindings
+
 ;; Vim-like bindings
 ;; ffap (gf in Vim, so M-g M-f in Emacs)
 ;; use my "own" implementation
 (global-set-key (kbd "M-g M-f") 'rod-ffap)
 (global-set-key (kbd "C-S-o") 'rod-vim-open-line)
+(global-set-key (kbd "C-c y") 'copy-line)
+;; M-z is normally zap-to-char, which is less useful than zap-up-to-char
+(global-set-key "\M-z" 'zap-up-to-char)
 
 ;; BETTER KEY bindings
 ;; -------------------
@@ -1002,6 +1007,43 @@ the first directory in `bibtex-completion-library-path'."
 (global-set-key [f9]
 		(lambda () (interactive)
 		  (sgml-tag "p")))
+
+;; Various M-x bindings when needed
+;; (global-set-key (kbd "M-x") 'execute-extended-command)
+
+;; Key-bind `org-remark-mark' to global-map so that you can call it
+;; globally before the library is loaded.
+(define-key global-map (kbd "C-c n m") #'rod-org-remark-mark-and-open)
+
+;; User reserved space. Mnemonic s -- shell.
+(global-set-key (kbd "C-c s") 'rod-start-pwsh-here)
+;; transpose-frame
+(global-set-key (kbd "C-c t") 'transpose-frame)
+;; open in explorer shortcut
+(global-set-key (kbd "C-c e") 'rod-open-explorer)
+;; find-files: because right now I'm using helm and emacs' internal find files
+;; has better processing when pasting a path (it ignores what's already in their
+;; buffer)
+(global-set-key (kbd "C-c f") 'find-file)
+;; Originally bound to `kill-buffer', but 99.99% used to kill current buffer.
+(global-set-key (kbd "C-x k") 'kill-current-buffer)
+;; ace-window -- for switching windows
+(global-set-key (kbd "M-o") 'ace-window)
+(global-set-key [f5] 'evil-mode)
+(global-set-key [f6] 'replace-regexp)
+;; (global-set-key [f7] 'avy-goto-line)	;changed to M-g f
+(global-set-key [f8] 'neotree-toggle)
+(global-set-key [f12] 'swiper)
+(global-set-key
+ (kbd "C-c 2")
+ (lambda () (interactive)
+   (find-file
+    (rod-concat-documents-dir "System/gtd.org"))))
+;; mnemonic: recent clock
+(global-set-key (kbd "C-c r")
+		(lambda () (interactive)
+		  (let ((current-prefix-arg '(4)))
+		    (call-interactively 'org-clock-in))))
 
 ;; theme & font
 (use-package doom-themes
@@ -1923,44 +1965,6 @@ Windows format."
 	 ;; point only if the prefix argument has been given.
 	 (dired-get-marked-files t t nil nil t))))
 
-;;; personal global keybindings
-
-;; Various M-x bindings when needed
-;; (global-set-key (kbd "M-x") 'execute-extended-command)
-
-;; Key-bind `org-remark-mark' to global-map so that you can call it
-;; globally before the library is loaded.
-(define-key global-map (kbd "C-c n m") #'rod-org-remark-mark-and-open)
-
-;; User reserved space. Mnemonic s -- shell.
-(global-set-key (kbd "C-c s") 'rod-start-pwsh-here)
-;; transpose-frame
-(global-set-key (kbd "C-c t") 'transpose-frame)
-;; open in explorer shortcut
-(global-set-key (kbd "C-c e") 'rod-open-explorer)
-;; find-files: because right now I'm using helm and emacs' internal find files
-;; has better processing when pasting a path (it ignores what's already in their
-;; buffer)
-(global-set-key (kbd "C-c f") 'find-file)
-;; Originally bound to `kill-buffer', but 99.99% used to kill current buffer.
-(global-set-key (kbd "C-x k") 'kill-current-buffer)
-;; ace-window -- for switching windows
-(global-set-key (kbd "M-o") 'ace-window)
-(global-set-key [f5] 'evil-mode)
-(global-set-key [f6] 'replace-regexp)
-;; (global-set-key [f7] 'avy-goto-line)	;changed to M-g f
-(global-set-key [f12] 'swiper)
-(global-set-key
- (kbd "C-c 2")
- (lambda () (interactive)
-   (find-file
-    (rod-concat-documents-dir "System/gtd.org"))))
-;; mnemonic: recent clock
-(global-set-key (kbd "C-c r")
-		(lambda () (interactive)
-		  (let ((current-prefix-arg '(4)))
-		    (call-interactively 'org-clock-in))))
-
 ;; Thanks leah aka bcmertz for inspiration.
 ;; https://github.com/bcmertz/dotfiles/blob/main/.emacs.d/lisp/custom-keybindings.el
 (use-package general
@@ -2062,7 +2066,6 @@ Windows format."
   :ensure nil)				;isn't tested with use package
 
 ;; NeoTree
-(global-set-key [f8] 'neotree-toggle)
 ;; (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 
 (use-package saveplace-pdf-view)
@@ -2322,11 +2325,6 @@ Windows format."
     (kill-append "\n" nil)
     (beginning-of-line (or (and arg (1+ arg)) 2))
     (if (and arg (not (= 1 arg))) (message "%d lines copied" arg)))
-
-;; improvements inspired by Vim
-(global-set-key (kbd "C-c y") 'copy-line)
-;; M-z is normally zap-to-char, which is less useful than zap-up-to-char
-(global-set-key "\M-z" 'zap-up-to-char)
 
 ;; drag minor mode
 ;; for moving lines with M-up and M-down
