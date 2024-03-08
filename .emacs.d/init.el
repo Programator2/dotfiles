@@ -1099,148 +1099,150 @@ the first directory in `bibtex-completion-library-path'."
 ;;  '(modus-themes-links '(no-underline background))
 ;;  '(modus-themes-inhibit-reload nil)
 ;;  '(modus-themes-box-buttons '(flat accented variable-pitch))
-(use-package modus-themes
-  :config
-  (setq modus-themes-bold-constructs t
-	modus-themes-completions '((matches) (selection))
-	modus-themes-headings '((1 rainbow))
-	modus-themes-italic-constructs t
-	modus-themes-mixed-fonts t
-	modus-themes-org-blocks 'tinted-background
-	modus-themes-variable-pitch-ui t)
-  (setq modus-themes-common-palette-overrides
-	`(
-	  ;; From the section "Make the mode line borderless"
-          (border-mode-line-active unspecified)
-          (border-mode-line-inactive unspecified)
+;; (use-package modus-themes
+  ;; :config
+(setq modus-themes-bold-constructs t
+      modus-themes-completions '((matches) (selection))
+      modus-themes-headings '((1 rainbow))
+      modus-themes-italic-constructs t
+      modus-themes-mixed-fonts t
+      modus-themes-org-blocks 'tinted-background
+      modus-themes-variable-pitch-ui t)
+(setq modus-themes-common-palette-overrides
+      `(
+	;; From the section "Make the mode line borderless"
+        (border-mode-line-active unspecified)
+        (border-mode-line-inactive unspecified)
 
-	  ;; Make the fringe invisible
-	  (fringe unspecified)
+	;; Make the fringe invisible
+	(fringe unspecified)
 
-	  ;; Remove underlines from links
-	  (underline-link unspecified)
-          (underline-link-visited unspecified)
-          (underline-link-symbolic unspecified)
+	;; Remove underlines from links
+	(underline-link unspecified)
+        (underline-link-visited unspecified)
+        (underline-link-symbolic unspecified)
 
-	  (bg-link bg-blue-nuanced)
+	(bg-link bg-blue-nuanced)
 
-	  ;; Here are contents of `modus-themes-preset-overrides-intense' copied
-	  ;; here for manual adjustment:
+	;; Here are contents of `modus-themes-preset-overrides-intense' copied
+	;; here for manual adjustment:
 
-	  (bg-region bg-cyan-intense)
+	(bg-region bg-cyan-intense)
 
-	  (bg-completion       bg-cyan-subtle)
-	  (bg-hover            bg-yellow-intense)
-	  (bg-hover-secondary  bg-magenta-intense)
-	  ;; (bg-hl-line          bg-cyan-subtle)
+	(bg-completion       bg-cyan-subtle)
+	(bg-hover            bg-yellow-intense)
+	(bg-hover-secondary  bg-magenta-intense)
+	;; (bg-hl-line          bg-cyan-subtle)
 
-	  (bg-mode-line-active      bg-blue-subtle)
-	  (fg-mode-line-active      fg-main)
-	  ;; (border-mode-line-active  blue-intense)
+	(bg-mode-line-active      bg-blue-subtle)
+	(fg-mode-line-active      fg-main)
+	;; (border-mode-line-active  blue-intense)
 
-	  ;; (fringe bg-inactive)
-	  ;; (comment red-faint)
+	;; (fringe bg-inactive)
+	;; (comment red-faint)
 
-	  (date-common cyan)
-	  (date-deadline red)
-	  (date-event blue)
-	  (date-holiday magenta-warmer)
-	  (date-now blue-faint)
-	  (date-scheduled yellow-warmer)
-	  (date-weekday fg-main)
-	  (date-weekend red-faint)
+	(date-common cyan)
+	(date-deadline red)
+	(date-event blue)
+	(date-holiday magenta-warmer)
+	(date-now blue-faint)
+	(date-scheduled yellow-warmer)
+	(date-weekday fg-main)
+	(date-weekend red-faint)
 
-	  ;; (keybind blue-intense)
+	;; (keybind blue-intense)
 
-	  (mail-cite-0 blue)
-	  (mail-cite-1 yellow)
-	  (mail-cite-2 green)
-	  (mail-cite-3 magenta)
-	  (mail-part magenta-cooler)
-	  (mail-recipient cyan)
-	  (mail-subject red-warmer)
-	  (mail-other cyan-cooler)
+	(mail-cite-0 blue)
+	(mail-cite-1 yellow)
+	(mail-cite-2 green)
+	(mail-cite-3 magenta)
+	(mail-part magenta-cooler)
+	(mail-recipient cyan)
+	(mail-subject red-warmer)
+	(mail-other cyan-cooler)
 
-	  ;; (fg-prompt blue-intense)
+	;; (fg-prompt blue-intense)
 
-	  (prose-block red-faint)
-	  (prose-done green-intense)
-	  (prose-metadata cyan-faint)
-	  (prose-metadata-value blue-cooler)
-	  (prose-table cyan)
-	  (prose-todo red-intense)
+	(prose-block red-faint)
+	(prose-done green-intense)
+	(prose-metadata cyan-faint)
+	(prose-metadata-value blue-cooler)
+	(prose-table cyan)
+	(prose-todo red-intense)
 
-	  (fg-heading-0 blue-cooler)
-	  (fg-heading-1 magenta-cooler)
-	  (fg-heading-2 magenta-warmer)
-	  (fg-heading-3 blue)
-	  (fg-heading-4 cyan)
-	  (fg-heading-5 green-warmer)
-	  (fg-heading-6 yellow)
-	  (fg-heading-7 red)
-	  (fg-heading-8 magenta)
+	(fg-heading-0 blue-cooler)
+	(fg-heading-1 magenta-cooler)
+	(fg-heading-2 magenta-warmer)
+	(fg-heading-3 blue)
+	(fg-heading-4 cyan)
+	(fg-heading-5 green-warmer)
+	(fg-heading-6 yellow)
+	(fg-heading-7 red)
+	(fg-heading-8 magenta)
 
-	  (bg-tab-bar bg-main)
-          (bg-tab-current bg-cyan-intense)
-          (bg-tab-other bg-inactive)
+	(bg-tab-bar bg-main)
+        (bg-tab-current bg-cyan-intense)
+        (bg-tab-other bg-inactive)
 
-	  ;; (bg-heading-0 unspecified)
-	  ;; (bg-heading-1 bg-magenta-nuanced)
-	  ;; (bg-heading-2 bg-red-nuanced)
-	  ;; (bg-heading-3 bg-blue-nuanced)
-	  ;; (bg-heading-4 bg-cyan-nuanced)
-	  ;; (bg-heading-5 bg-green-nuanced)
-	  ;; (bg-heading-6 bg-yellow-nuanced)
-	  ;; (bg-heading-7 bg-red-nuanced)
-	  ;; (bg-heading-8 bg-magenta-nuanced)
+	;; (bg-heading-0 unspecified)
+	;; (bg-heading-1 bg-magenta-nuanced)
+	;; (bg-heading-2 bg-red-nuanced)
+	;; (bg-heading-3 bg-blue-nuanced)
+	;; (bg-heading-4 bg-cyan-nuanced)
+	;; (bg-heading-5 bg-green-nuanced)
+	;; (bg-heading-6 bg-yellow-nuanced)
+	;; (bg-heading-7 bg-red-nuanced)
+	;; (bg-heading-8 bg-magenta-nuanced)
 
-	  ;; (overline-heading-0 unspecified)
-	  ;; (overline-heading-1 magenta-cooler)
-	  ;; (overline-heading-2 magenta-warmer)
-	  ;; (overline-heading-3 blue)
-	  ;; (overline-heading-4 cyan)
-	  ;; (overline-heading-5 green)
-	  ;; (overline-heading-6 yellow-cooler)
-	  ;; (overline-heading-7 red-cooler)
-	  ;; (overline-heading-8 magenta)
+	;; (overline-heading-0 unspecified)
+	;; (overline-heading-1 magenta-cooler)
+	;; (overline-heading-2 magenta-warmer)
+	;; (overline-heading-3 blue)
+	;; (overline-heading-4 cyan)
+	;; (overline-heading-5 green)
+	;; (overline-heading-6 yellow-cooler)
+	;; (overline-heading-7 red-cooler)
+	;; (overline-heading-8 magenta)
 
-	  ;; end of `modus-themes-preset-overrides-intense'
+	;; end of `modus-themes-preset-overrides-intense'
 
-	  ;; ,@modus-themes-preset-overrides-intense
-	  )
-	modus-operandi-tinted-palette-overrides
-	`(
-	  (bg-mode-line-active      "#cab9b2")
-	  ))
-  (defun rod-modus-themes-custom-faces ()
-    (modus-themes-with-colors
-      (custom-set-faces
-       ;; Make tooltips readable --RP
-       `(tooltip ((,c :background ,bg-blue-subtle :foreground ,fg-main)))
-       ;; Add "padding" to the mode lines
-       `(mode-line ((,c :box (:line-width 3 :color ,bg-mode-line-active))))
-       `(mode-line-inactive ((,c :box (:line-width 3 :color ,bg-mode-line-inactive))))
+	;; ,@modus-themes-preset-overrides-intense
+	)
+      modus-operandi-tinted-palette-overrides
+      `(
+	(bg-mode-line-active      "#cab9b2")
+	))
+(defun rod-modus-themes-custom-faces ()
+  (modus-themes-with-colors
+    (custom-set-faces
+     ;; Make tooltips readable --RP
+     `(tooltip ((,c :background ,bg-blue-subtle :foreground ,fg-main)))
+     ;; Add "padding" to the mode lines
+     `(mode-line ((,c :box (:line-width 3 :color ,bg-mode-line-active))))
+     `(mode-line-inactive ((,c :box (:line-width 3 :color ,bg-mode-line-inactive))))
        ;;;; helm
-       `(helm-selection              ((,c :inherit bold :background ,bg-hl-line :extend t :distant-foreground ,magenta-cooler)))
-       `(helm-match                  ((,c :inherit bold :foreground ,magenta-cooler :distant-foreground ,fg-main)))
-       `(helm-source-header          ((,c :background ,bg-inactive :foreground ,keyword :weight bold)))
-       `(helm-visible-mark           ((,c :inherit (bold highlight))))
-       `(helm-moccur-buffer          ((,c :inherit link)))
-       `(helm-ff-file                ((,c :foreground ,fg-main)))
-       `(helm-ff-prefix              ((,c :foreground ,keyword)))
-       `(helm-ff-dotted-directory    ((,c :foreground ,fg-alt)))
-       `(helm-ff-directory           ((,c :foreground ,variable)))
-       `(helm-ff-executable          ((,c :foreground ,fg-main :inherit italic)))
-       `(helm-grep-match             ((,c :foreground ,magenta-cooler :distant-foreground ,red-cooler)))
-       `(helm-grep-file              ((,c :foreground ,fnname)))
-       `(helm-grep-lineno            ((,c :foreground ,fg-alt)))
-       `(helm-grep-finish            ((,c :foreground ,cyan-cooler)))
-       `(helm-locate-finish          ((,c :foreground ,green)))
-       `(org-agenda-date-today       ((,c :inherit org-agenda-date :background ,bg-blue-nuanced :underline nil)))
-       )))
-  (add-hook 'modus-themes-after-load-theme-hook #'rod-modus-themes-custom-faces)
-  ;; :init
-  (load-theme 'modus-operandi :no-confim))
+     `(helm-selection              ((,c :inherit bold :background ,bg-hl-line :extend t :distant-foreground ,magenta-cooler)))
+     `(helm-match                  ((,c :inherit bold :foreground ,magenta-cooler :distant-foreground ,fg-main)))
+     `(helm-source-header          ((,c :background ,bg-inactive :foreground ,keyword :weight bold)))
+     `(helm-visible-mark           ((,c :inherit (bold highlight))))
+     `(helm-moccur-buffer          ((,c :inherit link)))
+     `(helm-ff-file                ((,c :foreground ,fg-main)))
+     `(helm-ff-prefix              ((,c :foreground ,keyword)))
+     `(helm-ff-dotted-directory    ((,c :foreground ,fg-alt)))
+     `(helm-ff-directory           ((,c :foreground ,variable)))
+     `(helm-ff-executable          ((,c :foreground ,fg-main :inherit italic)))
+     `(helm-grep-match             ((,c :foreground ,magenta-cooler :distant-foreground ,red-cooler)))
+     `(helm-grep-file              ((,c :foreground ,fnname)))
+     `(helm-grep-lineno            ((,c :foreground ,fg-alt)))
+     `(helm-grep-finish            ((,c :foreground ,cyan-cooler)))
+     `(helm-locate-finish          ((,c :foreground ,green)))
+     `(org-agenda-date-today       ((,c :inherit org-agenda-date :background ,bg-blue-nuanced :underline nil)))
+     )))
+;; (add-hook 'modus-themes-after-load-theme-hook #'rod-modus-themes-custom-faces)
+;; :init
+(load-theme 'modus-operandi :no-confim)
+(rod-modus-themes-custom-faces)
+;; )
   ;; (load-theme 'modus-operandi :no-confim)
   ;; (rod-modus-themes-custom-faces))
 
