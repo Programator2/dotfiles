@@ -93,7 +93,19 @@
 
 (pcase system-type
   ('windows-nt
-   (setq source-directory "c:/Users/Roderik/Documents/Sources/C/emacs/"))
+  ;; Windows nomenclature
+   (setq rod-userprofile-directory
+	 (cond ((string= (system-name) "IdeaPad-5-Pro") "c:/Users/Progr/")
+	       (t "c:/Users/Roderik/"))))
+  ('gnu/linux
+   (setq rod-userprofile-directory "~/")))
+
+;; Emacs source
+(pcase system-type
+  ('windows-nt
+   (setq source-directory
+	 (concat rod-userprofile-directory
+		 "Documents/Sources/C/emacs/")))
   ('gnu/linux
    (setq source-directory "/mnt/win/Users/Roderik/Documents/Sources/C/emacs/")))
 
@@ -107,7 +119,8 @@
 (defun rod-get-documents-dir ()
   "Return directory where user files are stored. It's the Documents
 folder for Windows and ~ for GNU/Linux and other systems."
-  (cond ((eq system-type 'windows-nt) "c:/Users/Roderik/Documents/")
+  (cond ((eq system-type 'windows-nt) (concat rod-userprofile-directory
+					      "Documents/"))
         ((eq system-type 'gnu/linux) "~/")
 	(t "~/")))
 
@@ -115,6 +128,11 @@ folder for Windows and ~ for GNU/Linux and other systems."
   "Return path to the requested PATH inside system's document
 folder."
   (concat (rod-get-documents-dir) path))
+
+(defun rod-concat-userprofile-dir (path)
+  "Return path to the requested PATH inside system's userprofile
+folder."
+  (file-name-concat rod-userprofile-directory path))
 
 (load-file (concat user-emacs-directory "init-private.el"))
 ;;; org-mode
@@ -720,10 +738,13 @@ the first directory in `bibtex-completion-library-path'."
 (setq deft-directory (rod-concat-documents-dir "System"))
 
 (when (eq system-type 'windows-nt)
-  (setq epg-gpg-home-directory "C:/Users/Roderik/AppData/Roaming/gnupg"
-        eww-download-directory "c:/Users/Roderik/Downloads"
+  (setq epg-gpg-home-directory (concat rod-userprofile-directory
+				       "AppData/Roaming/gnupg")
+        eww-download-directory (concat rod-userprofile-directory
+				       "Downloads")
 	flycheck-html-tidy-executable "C:\\Program Files\\tidy 5.8.0\\bin\\tidy.exe"
-	lsp-fsharp-server-install-dir "C:/Users/Roderik/.dotnet/tools/"
+	lsp-fsharp-server-install-dir  (rod-concat-userprofile-dir
+					".dotnet/tools/")
 	python-shell-interpreter "c:/python311/python.exe"
 	woman-manpath
 	'("C:/tools/cygwin/usr/man" "C:/tools/cygwin/usr/share/man" "C:/tools/cygwin/usr/local/share/man"
@@ -740,7 +761,8 @@ the first directory in `bibtex-completion-library-path'."
 	  ("/usr/games" . "/usr/share/man")
 	  ("/opt/bin" . "/opt/man")
 	  ("/opt/sbin" . "/opt/man")
-	  "c:/Users/Roderik/Documents/Sources/linux/man-pages" "f:/usr/share/man")
+	  ,(rod-concat-documents-dir "Documents/Sources/linux/man-pages")
+	  "f:/usr/share/man")
 
 ))
 
@@ -1680,7 +1702,7 @@ the current file selected."
 	(list 'dired path)))
 
 (when (eq system-type 'windows-nt)
-      (rod-dired downloads "c:\\Users\\Roderik\\Downloads")
+      (rod-dired downloads (rod-concat-userprofile-dir "Downloads"))
       (rod-dired c "c:"))
 
 (use-package dired-recent)
@@ -2611,7 +2633,7 @@ Windows format."
   :config
   (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir))
   (when (eq system-type 'windows-nt)
-    (setq calibredb-root-dir "c:/Users/Roderik/Calibre Library")))
+    (setq calibredb-root-dir (rod-concat-userprofile-dir "Calibre Library"))))
 
 (use-package slime
     :commands slime-mode
