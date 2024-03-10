@@ -3070,6 +3070,7 @@ Windows format."
   ;;
   (add-hook 'modus-themes-after-load-theme-hook #'rod-modus-themes-custom-faces)
   (load-theme 'modus-operandi :no-confim)
+  (rod-modus-themes-custom-faces)
   )
 
 ;;; diminish
