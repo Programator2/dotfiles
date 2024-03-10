@@ -3085,9 +3085,9 @@ Windows format."
 (diminish 'helm-mode)
 (diminish 'auto-fill-function)
 
-;; change garbage collection to a more suitable value (based on spacemacs, so I
-;; trust the experts)
-(setq gc-cons-threshold 100000000 gc-cons-percentage 0.1)
+;; change garbage collection to a more suitable value (~50MB, spacemacs uses
+;; ~100MB)
+(setq gc-cons-threshold 50000000 gc-cons-percentage 0.1)
 
 ;; doom-modeline
 ;;(require 'doom-modeline)
@@ -3100,7 +3100,7 @@ Windows format."
        (format "%s seconds"
 	       (float-time
 		(time-subtract (current-time) before-init-time)))))
-  (message "Startup took %s. Ready." str))
+  (message "Startup took %s. GC done %d times and took %f seconds. Ready." str gcs-done gc-elapsed))
 
 (provide 'init)
 ;;; init.el ends here
