@@ -872,6 +872,35 @@ the first directory in `bibtex-completion-library-path'."
 (setq-default display-time-24hr-format t)
 (display-time-mode 1)
 
+;;; eshell
+(use-package eshell
+  :ensure nil
+  :config
+  (setq
+   eshell-cmpl-use-paring nil
+   eshell-hist-ignoredups t
+   eshell-history-size 512
+   ;; eshell-prompt-function
+   ;; '(lambda nil
+   ;;    #("$ " 0 2
+   ;; 	(rear-nonsticky
+   ;; 	 (font-lock-face read-only)
+   ;; 	 front-sticky
+   ;; 	 (font-lock-face read-only)
+   ;; 	 font-lock-face eshell-prompt read-only t)))
+   ;; eshell-prompt-regexp "^$ "
+   )
+  (add-hook 'eshell-mode-hook
+            (lambda ()
+              (define-key eshell-mode-map (kbd "C-c C-r") #'helm-eshell-history))))
+  ;; :bind (:map eshell-mode-map
+	      ;; ("C-c C-r" . helm-eshell-history)))
+
+;; display of certain characters and control codes to UTF-8
+(defun my-term-use-utf8 ()
+  (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
+(add-hook 'term-exec-hook 'my-term-use-utf8)
+
 ;;; helm
 (use-package helm
   :diminish helm-mode
