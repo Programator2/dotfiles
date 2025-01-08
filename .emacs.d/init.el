@@ -174,9 +174,6 @@ folder."
 
 (use-package diminish)
 
-(use-package org-roam-timestamps
-  :diminish org-roam-timestamps-mode)
-
 (use-package org
   :ensure org-contrib
   :commands org-clock-in
@@ -431,7 +428,6 @@ If OTHERS is true, skip all entries that do not correspond to TAG."
   :ensure nil)
 (use-package org-id
   :ensure nil)
-(use-package org-roam-timestamps)
 
 (use-package calfw)
 (use-package calfw-org :commands cfw:open-org-calendar)
@@ -690,6 +686,11 @@ the first directory in `bibtex-completion-library-path'."
 (use-package org-pomodoro)
 (setq-default org-pomodoro-audio-player nil)
 
+(use-package org-tidy
+  :ensure t
+  :hook
+  (org-mode . org-tidy-mode))
+
 ;; org-roam
 (use-package org-roam
   :custom
@@ -705,23 +706,28 @@ the first directory in `bibtex-completion-library-path'."
   :config
   (org-roam-db-autosync-mode)
   ;; If using org-roam-protocol
-  (require 'org-roam-protocol))
+  (require 'org-roam-protocol)
+  :custom
+  (org-roam-capture-templates
+   `(("r" "reference to a website" entry
+      ""
+      :target
+      (file+head ,(rod-concat-documents-dir
+		   "System/knowledgebase.org")
+		 "Notes on websites")))))
 
-;; for org-roam (emacsql-libsqlite doesn't work well)
-;; see https://github.com/org-roam/org-roam/issues/1603
-;; (use-package sqlite3)
-;; (require 'sqlite3)
-;; (use-package emacsql-libsqlite3
-  ;; :custom
-  ;; (org-roam-database-connector 'libsqlite3))
-;; (add-hook 'after-init-hook 'org-roam-mode)
-;; change filename so that title is first (easier to see the actual title)
-;; (setq-default org-roam-capture-templates
-  ;; '(("d" "default" plain (function org-roam-capture--get-point)
-     ;; "%?"
-     ;; :file-name "${slug}-%<%Y-%m-%dT%H:%M>"
-     ;; :head "#+title: ${title}\n"
-     ;; :unnarrowed t)))
+(use-package org-roam-timestamps
+  :diminish org-roam-timestamps-mode)
+
+(use-package deft
+  :after org
+  :bind
+  ("C-c n d" . deft)
+  :custom
+  (deft-recursive t)
+  (deft-use-filter-string-for-filename t)
+  (deft-default-extension "org")
+  (deft-directory org-roam-directory))
 
 ;; helm-org-rifle
 (use-package helm-org-rifle
@@ -734,9 +740,15 @@ the first directory in `bibtex-completion-library-path'."
   ("<f2> g" . helm-org-agenda-files-headings)
   ("<f2> h" . helm-org-in-buffer-headings))
 
-;;; end org-mode
+(use-package org-modern
+  :config
+  (setq org-hide-emphasis-markers t
+	org-pretty-entities t)
+  )
 
-(setq deft-directory (rod-concat-documents-dir "System"))
+(use-package valign)
+
+;;; end org-mode
 
 (when (eq system-type 'windows-nt)
   (setq epg-gpg-home-directory (concat rod-userprofile-directory
@@ -2497,11 +2509,14 @@ Windows format."
 
 (use-package evil-org
   :ensure t
-  :after org
+  :after (evil org)
   :diminish evil-org-mode
-  :hook (org-mode-hook . evil-org-mode)
+  :hook ((org-mode-hook . evil-org-mode)
+	 (org-agenda-mode-hook . evil-org-mode))
   :config
   (require 'evil-org-agenda)
+  (evil-org-set-key-theme
+   '(navigation insert return textobjects additional calendar))
   (evil-org-agenda-set-keys))
 
 ;; faster scrolling in long lines
@@ -2839,8 +2854,11 @@ Windows format."
  '(org-html-with-latex 'mathjax)
  '(org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
  '(org-image-actual-width '(450))
+ '(org-latex-engraved-preamble
+   "\\usepackage{fvextra}\12\12[FVEXTRA-SETUP]\12\12% Make line numbers smaller and grey.\12\\renewcommand\\theFancyVerbLine{\\footnotesize\\color{black!40!white}\\arabic{FancyVerbLine}}\12\12\\usepackage{xcolor}\12\12% In case engrave-faces-latex-gen-preamble has not been run.\12\\providecolor{EfD}{HTML}{f7f7f7}\12\\providecolor{EFD}{HTML}{28292e}\12\12% Define a Code environment to prettily wrap the fontified code.\12\\usepackage[breakable,xparse]{tcolorbox}\12\\DeclareTColorBox[]{Code}{o}%\12{colback=EfD!98!EFD, colframe=EfD!95!EFD,\12  fontupper=\\tiny\\setlength{\\fboxsep}{0pt},\12  colupper=EFD,\12  IfNoValueTF={#1}%\12  {boxsep=2pt, arc=2.5pt, outer arc=2.5pt,\12    boxrule=0.5pt, left=2pt}%\12  {boxsep=2.5pt, arc=0pt, outer arc=0pt,\12    boxrule=0pt, leftrule=1.5pt, left=0.5pt},\12  right=2pt, top=1pt, bottom=0.5pt,\12  breakable}\12\12[LISTINGS-SETUP]")
  '(org-latex-pdf-process
    '("%latex -interaction nonstopmode -shell-escape -output-directory %o %f" "%latex -interaction nonstopmode -shell-escape -output-directory %o %f" "%latex -interaction nonstopmode -shell-escape -output-directory %o %f"))
+ '(org-latex-src-block-backend 'engraved)
  '(org-latex-tables-booktabs t)
  '(org-log-into-drawer t)
  '(org-man-command 'woman)
