@@ -1,6 +1,6 @@
 ;;; init.el --- Personal EMACS config by Roderik Ploszek -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2018-2024 Roderik Ploszek
+;; Copyright (C) 2018-2025 Roderik Ploszek
 
 ;; Author: Roderik Ploszek <roderik.ploszek@gmail.com>
 
@@ -36,7 +36,6 @@
     (package-initialize))
 ;; MELPA
 (require 'package)
-;; (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives (cons "melpa" "https://melpa.org/packages/") t)
 (add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/"))
@@ -854,7 +853,7 @@ the first directory in `bibtex-completion-library-path'."
 	    ;; July 2019 default keybindings for <left> and <right> were changed
 	    ;; (https://github.com/emacs-helm/helm/commit/60466004daf894fb390b07f9ff8d4d9283a395ef),
 	    ;; this changes them back
-	    ;; Gues what ? They changed it back in May 2020
+	    ;; Guess what ? They changed it back in May 2020
 	    ;; (https://github.com/emacs-helm/helm/commit/b8cb661bae0d6649d1e555a4d7c65c08852bff11).
 	    ;; But I guess I keep this setting in case they change their mind
 	    ;; again
@@ -865,8 +864,10 @@ the first directory in `bibtex-completion-library-path'."
   :bind (
 	 ("M-x" . helm-M-x)
 	 ;; ("M-x" . execute-extended-command)
+	 ;; ("M-x" . counsel-M-x)
 	 ;; ("C-x b" . helm-mini)
-	 ("C-x b" . switch-to-buffer)
+	 ;; ("C-x b" . switch-to-buffer)
+	 ("C-x b" . helm-buffers-list)
 	 ;; ("C-x C-b" . helm-mini)
 	 ("C-x C-f" . helm-find-files)
 	 ("C-x C-r" . helm-recentf)
@@ -902,7 +903,7 @@ the first directory in `bibtex-completion-library-path'."
          ("C-c o" . counsel-outline)
          ;; ("C-c T" . counsel-load-theme)
          ;; ("C-c z" . counsel-bookmark)
-         ("C-x C-r" . counsel-recentf)
+         ;; ("C-x C-r" . counsel-recentf)
          ;; ("C-x C-f" . counsel-find-file)
 	 ;; ("<f1> f" . counsel-describe-function)
 	 ;; ("<f1> v" . counsel-describe-variable)
@@ -916,7 +917,7 @@ the first directory in `bibtex-completion-library-path'."
 	 ;; ("C-S-o" . counsel-rhythmbox)
 	 )
   ;; (:map counsel-find-file-map
-        ;; ("RET" . ivy-alt-done))
+  ;; ("RET" . ivy-alt-done))
   ;; (:map minibuffer-local-map
   ;;       ("C-r" . 'counsel-minibuffer-history))
   )
@@ -994,8 +995,12 @@ the first directory in `bibtex-completion-library-path'."
 (global-set-key (kbd "M-g M-f") 'rod-ffap)
 (global-set-key (kbd "C-S-o") 'rod-vim-open-line)
 (global-set-key (kbd "C-c y") 'copy-line)
+
 ;; M-z is normally zap-to-char, which is less useful than zap-up-to-char
 (global-set-key "\M-z" 'zap-up-to-char)
+;; 2024-05 Something happened in Windows 11 (AMD graphics driver perhaps) and
+;; \M-z doesn't work anymore
+(global-set-key (kbd "C-c z") 'zap-up-to-char)
 
 ;; BETTER KEY bindings
 ;; -------------------
@@ -1017,6 +1022,7 @@ the first directory in `bibtex-completion-library-path'."
 
 ;; User reserved space. Mnemonic s -- shell.
 (global-set-key (kbd "C-c s") 'rod-start-pwsh-here)
+(global-set-key (kbd "C-c s") 'rod-start-alacritty-here)
 ;; transpose-frame
 (global-set-key (kbd "C-c t") 'transpose-frame)
 ;; open in explorer shortcut
@@ -1091,6 +1097,12 @@ the first directory in `bibtex-completion-library-path'."
 (use-package all-the-icons
   :if (display-graphic-p))
 
+;; choco install nerd-fonts-ibmplexmono
+(use-package nerd-icons)
+(use-package nerd-icons-dired)
+;; :hook
+;; (dired-mode . nerd-icons-dired-mode))
+
 ;; v starsej verzii sa nastavoval skript 'symbol, ale min. od verzie 28.1 sa
 ;; pouziva 'emoji
 (when (member "Segoe UI Emoji" (font-family-list))
@@ -1138,7 +1150,31 @@ the first directory in `bibtex-completion-library-path'."
 ;; (set-frame-font "IBM Plex Mono-16" nil t)  ;; quite high
 
 (when (member "Cascadia Code" (font-family-list))
-  (set-frame-font "Cascadia Code-12" nil t))
+  (set-frame-font "Cascadia Code-10" nil t))
+
+;; Font size adjustment
+;; From https://www.reddit.com/r/emacs/comments/dpc2aj/comment/f5uasez/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+;; Disadvantage: manual setting of frame font size now doesn't work
+(defun rod-adjust-font-size (frame)
+  "Inspired by https://emacs.stackexchange.com/a/44930/17066. FRAME is ignored.
+If I let Windows handle DPI everything looks blurry."
+  ;; Using display names is unreliable...switched to checking the resolution
+  (let* ((attrs (frame-monitor-attributes)) ;; gets attribs for current frame
+         (monitor-name (cdr (nth 3 attrs)))
+         (width-mm (nth 1 (nth 2 attrs)))
+         (width-px (nth 3 (nth 0 attrs)))
+         (size 90)) ;; default for first screen at work
+    (when (eq width-px 2560) ;; middle display at work
+      (setq size 120))
+    (when (eq width-px 1920) ;; laptop screen
+      (setq size 90))
+    (when (eq (length (display-monitor-attributes-list)) 1) ;; override everything if no external monitors!
+      (setq size 90))
+    (rod-frame-font size)
+    ;; (message "hello")
+    ))
+(add-hook 'window-size-change-functions #'rod-adjust-font-size)
+(remove-hook 'window-size-change-functions #'rod-adjust-font-size)
 
 ;; light, smaller height than fira
 ;; (set-frame-font "DejaVu Sans Mono-12" nil t)
@@ -1315,8 +1351,9 @@ the first directory in `bibtex-completion-library-path'."
   :commands (yas-global-mode yas-minor-mode yas-activate-extra-mode)
   :diminish yas-minor-mode " y"
   :hook (prog-mode-hook . yas-minor-mode)
-  :config
-  ; personal snippets
+  (org-mode-hook . yas-minor-mode)
+  :config (yas-global-mode)
+					; personal snippets
   (add-to-list 'yas-snippet-dirs
 	       (concat user-emacs-directory "snippets")))
 
@@ -1382,7 +1419,7 @@ the first directory in `bibtex-completion-library-path'."
 (defun rod-copy-whole-buffer ()
   "Copy whole buffer."
   (interactive)
-  (kill-ring-save 1 (buffer-size)))
+  (kill-ring-save 1 (+ (buffer-size) 1)))
 
 (defun rod-replace-whole-buffer ()
   "Replace whole buffer with contents from the kill ring."
@@ -1396,15 +1433,16 @@ the first directory in `bibtex-completion-library-path'."
    " \\[at\\] " "@"
    str))
 
-;; (advice-add 'current-kill :filter-return #'rod-replace-at)
+(advice-add 'current-kill :filter-return #'rod-replace-at)
 
-(defun rod-remove-prefix (str)
+(defun rod-remove-uim-prefix (str)
   "Advice function for mail addresses from AIS"
   (string-remove-prefix
    "https://uim.fei.stuba.sk"
    str))
 
-(advice-add 'current-kill :filter-return #'rod-remove-prefix)
+(advice-add 'current-kill :filter-return #'rod-remove-uim-prefix)
+(advice-remove 'current-kill #'rod-remove-uim-prefix)
 
 (defun rod-kill-current-buffer-and-enter-dired ()
   (interactive)
@@ -1528,13 +1566,13 @@ before switching to a different branch in version control."
 
       (setq mark-ring (mapcar (lambda (mk) (copy-marker (marker-position mk)))
                               mark-ring))
-    (if display-flag
-        ;; Presumably the current buffer is shown in the selected frame, so
-        ;; we want to display the clone elsewhere.
-        (let ((same-window-regexps nil)
-              (same-window-buffer-names))
-          (pop-to-buffer new)))
-    new)))
+      (if display-flag
+          ;; Presumably the current buffer is shown in the selected frame, so
+          ;; we want to display the clone elsewhere.
+          (let ((same-window-regexps nil)
+		(same-window-buffer-names))
+            (pop-to-buffer new)))
+      new)))
 
 (defun rod-newline-advice (&optional arg interactive)
   "Remove trailing whitespace when adding a newline."
@@ -1986,8 +2024,12 @@ Windows format."
 
 ;; projectile
 (use-package projectile
-  ;; FIXME this hook doesn't work
-  :hook (prog-mode-hook . projectile-mode)
+  ;; 2024-12-01 Have to turn this off.
+  ;; projectile-track-known-projects-find-file-hook is slowing down everything
+  ;; (org-mode and company completions)
+
+  ;; :hook (prog-mode-hook . projectile-mode)
+  ;; (remove-hook 'prog-mode-hook 'projectile-mode)
   :bind
   ("C-c p" . projectile-command-map)
   :diminish projectile-mode
@@ -2256,6 +2298,9 @@ Windows format."
 
 (use-package rg)
 
+;; wait for Emacs 30
+;; (use-package corfu)
+
 (use-package lsp-mode
   :diminish lsp-mode
   ;; uncomment to enable gopls http debug server
@@ -2371,6 +2416,11 @@ Windows format."
   "Insert en dash."
   (interactive)
   (insert "–"))
+
+(defun rod-insert-pdflatex-command ()
+  "Insert pdflatex command with my favourite parameters."
+  (interactive)
+  (insert "latexmk -pdf --synctex=1 -interaction=nonstopmode -file-line-error "))
 
 (use-package solaire-mode
   :init
@@ -2531,18 +2581,18 @@ Windows format."
     (setq calibredb-root-dir (rod-concat-userprofile-dir "Calibre Library"))))
 
 (use-package slime
-    :commands slime-mode
-    :init
-    (progn
-      (setq slime-contribs '(slime-asdf
-                             slime-fancy
-                             slime-indentation
-                             slime-sbcl-exts
-                             slime-scratch)
-            inferior-lisp-program "sbcl")
-      ;; enable fuzzy matching in code buffer and SLIME REPL
-      (setq slime-complete-symbol*-fancy t)
-      (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)))
+  :commands slime-mode
+  :init
+  (progn
+    (setq slime-contribs '(slime-asdf
+                           slime-fancy
+                           slime-indentation
+                           slime-sbcl-exts
+                           slime-scratch)
+          inferior-lisp-program "sbcl")
+    ;; enable fuzzy matching in code buffer and SLIME REPL
+    (setq slime-complete-symbol*-fancy t)
+    (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)))
 
 (use-package esup
   :ensure t)
@@ -2570,8 +2620,8 @@ Windows format."
   :bind (
 	 ;; ([next] . good-scroll-up-full-screen)
 	 ;; ([prior] . good-scroll-down-full-screen)
-	 ;; ([next] . scroll-up-command)
-	 ;; ([prior] . scroll-down-command)
+	 ([next] . scroll-up-command)
+	 ([prior] . scroll-down-command)
 	 ))
 
 (use-package emacs
@@ -2693,6 +2743,7 @@ Windows format."
 	      (if time-zone " (")
 	      time-zone
 	      (if time-zone ")")))
+ '(calendar-view-holidays-initially-flag t)
  '(calibredb-ids-width 10)
  '(column-number-mode t)
  '(comint-move-point-for-output 'all)
@@ -2708,11 +2759,11 @@ Windows format."
  '(ef-themes-variable-pitch-ui t)
  '(electric-indent-mode t)
  '(electric-pair-mode nil)
+ '(elfeed-search-date-format '("%y-%m-%d %H:%M" 14 :left))
  '(elfeed-search-filter "@6-months-ago")
  '(epg-debug t)
  '(epg-passphrase-coding-system 'utf-8)
  '(eshell-cmpl-use-paring nil)
- '(evil-symbol-word-search t)
  '(ffap-file-name-with-spaces t)
  '(file-name-at-point-functions nil nil nil "Slows down helm, all fhook functions disabled 2023-05-02")
  '(global-hl-line-sticky-flag t)
@@ -2724,22 +2775,35 @@ Windows format."
  '(helm-M-x-show-short-doc t)
  '(helm-adaptive-mode t)
  '(helm-autoresize-mode t)
+ '(helm-candidate-number-limit 50)
  '(helm-org-ignore-autosaves t)
  '(httpd-port 8081)
+ '(ignored-local-variable-values
+   '((eval font-lock-add-keywords nil
+	   `((,(concat "("
+		       (regexp-opt
+			'("sp-do-move-op" "sp-do-move-cl" "sp-do-put-op" "sp-do-put-cl" "sp-do-del-op" "sp-do-del-cl")
+			t)
+		       "\\_>")
+	      1 'font-lock-variable-name-face)))))
  '(image-dired-cmd-create-thumbnail-options
    '("convert" "-size" "%wx%h" "%f[0]" "-resize" "%wx%h>" "-strip" "jpeg:%t"))
  '(image-dired-cmd-create-thumbnail-program "magick")
  '(image-dired-thumb-relief 0)
  '(image-use-external-converter t)
  '(insert-shebang-ignore-extensions '("txt" "org" "el" "py"))
+ '(ivy-height 20)
  '(ivy-hooks-alist '((t . toggle-input-method)))
  '(kill-do-not-save-duplicates t)
  '(kill-ring-max 120)
  '(line-number-mode t)
  '(lsp-enable-indentation nil)
  '(lsp-progress-spinner-type 'vertical-rising)
- '(magic-latex-enable-pretty-symbols nil)
+ '(lsp-ruff-server-command '("ruff" "server" "--preview"))
+ '(magic-latex-enable-block-align nil)
+ '(magic-latex-enable-pretty-symbols t)
  '(magit-copy-revision-abbreviated t)
+ '(markdown-max-image-size '(700))
  '(mode-line-format
    '("%e" mode-line-front-space mode-line-mule-info mode-line-client mode-line-modified mode-line-remote mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position evil-mode-line-tag
      (vc-mode vc-mode)
@@ -2755,6 +2819,7 @@ Windows format."
  '(org-babel-python-command "py")
  '(org-capture-use-agenda-date t)
  '(org-clock-report-include-clocking-task t)
+ '(org-confirm-babel-evaluate nil)
  '(org-expiry-inactive-timestamps t)
  '(org-export-in-background nil)
  '(org-file-apps
@@ -2814,7 +2879,7 @@ Windows format."
  '(org-use-sub-superscripts '{})
  '(package-menu-async nil)
  '(package-selected-packages
-   '(lua-mode treesit good-scroll flycheck-rust ron-mode toml-mode rust-mode cargo emacs-gc-stats insert-shebang nasm-mode notmuch x86-lookup window-purpose general typescript-mode yaml-mode rg magit ein quickrun name-this-color evil-org helpful dired-narrow helm-pydoc pydoc biblio bui queue cfrs websocket edit-server helm-descbinds keyfreq consult-dir mixed-pitch ef-themes consult-spotify ivy-spotify espotify matlab-mode evil-tex org-panel org-mouse org-protocol tex benchmark-init csv-mode company-auctex company-math company-reftex magic-latex-buffer typo math-symbol-lists maven-test-mode pcsv org-remark dirvish org-web-tools slime-company elquery rebecca-theme gnus-notes gnus-notes-helm org-mru-clock evil-smartparens emacsql-libsqlite3 svg-clock blacken imenu-list calibredb deft msvc fd-dired auctex-latexmk evil-numbers saveplace-pdf-view org-pdftools helm-bbdb sphinx-doc yasnippet expand-region helm-org js2-mode nodejs-repl git-package esup chronos dianyou dired-recent helm-org-rifle darkroom python-docstring smtpmail-multi elfeed evil-surround ggtags diminish disaster pos-tip yapfify evil-mc ivy-posframe counsel-org-clock auto-indent-mode aggressive-indent helm-lsp drag-stuff projectile-git-autofetch go-mode org-pomodoro calfw-org calfw-cal calfw spray hide-mode-line impatient-mode ace-jump-mode all-the-icons-gnus all-the-icons-dired rainbow-mode flycheck-mypy vue-mode web-beautify interleave htmlize ace-window poly-markdown highlight-indent-guides neotree auctex org-present))
+   '(org-roam-ui lua-mode treesit rustic corfu astro-ts-mode combobulate web-mode org-tidy valign org-modern vmd-mode gh-md dockerfile-mode visual-fill-column ivy-hydra ahk-mode engrave-faces nerd-icons-dired good-scroll flycheck-rust ron-mode toml-mode rust-mode cargo emacs-gc-stats insert-shebang nasm-mode notmuch x86-lookup window-purpose general typescript-mode yaml-mode rg magit ein quickrun name-this-color evil-org helpful dired-narrow helm-pydoc pydoc biblio bui queue cfrs websocket edit-server helm-descbinds keyfreq consult-dir mixed-pitch ef-themes consult-spotify ivy-spotify espotify matlab-mode evil-tex org-panel org-mouse org-protocol tex benchmark-init csv-mode company-auctex company-math company-reftex magic-latex-buffer typo math-symbol-lists maven-test-mode pcsv org-remark dirvish org-web-tools slime-company elquery rebecca-theme gnus-notes gnus-notes-helm org-mru-clock evil-smartparens emacsql-libsqlite3 svg-clock blacken imenu-list calibredb deft msvc fd-dired auctex-latexmk evil-numbers saveplace-pdf-view org-pdftools helm-bbdb sphinx-doc yasnippet expand-region helm-org js2-mode nodejs-repl git-package esup chronos dianyou dired-recent helm-org-rifle darkroom python-docstring smtpmail-multi elfeed evil-surround ggtags diminish disaster pos-tip yapfify evil-mc ivy-posframe counsel-org-clock auto-indent-mode aggressive-indent helm-lsp drag-stuff projectile-git-autofetch go-mode org-pomodoro calfw-org calfw-cal calfw spray hide-mode-line impatient-mode ace-jump-mode all-the-icons-gnus all-the-icons-dired rainbow-mode flycheck-mypy vue-mode web-beautify interleave htmlize ace-window poly-markdown highlight-indent-guides neotree auctex org-present))
  '(pdf-view-continuous t)
  '(pdf-view-selection-style 'glyph)
  '(projectile-indexing-method 'alien)
@@ -2825,7 +2890,12 @@ Windows format."
  '(request-backend 'url-retrieve)
  '(ring-bell-function 'ignore)
  '(safe-local-variable-values
-   '((vc-prepare-patches-separately)
+   '((TeX-master . t)
+     (etags-regen-ignores "test/manual/etags/")
+     (etags-regen-regexp-alist
+      (("c" "objc")
+       "/[ \11]*DEFVAR_[A-Z_ \11(]+\"\\([^\"]+\\)\"/\\1/" "/[ \11]*DEFVAR_[A-Z_ \11(]+\"[^\"]+\",[ \11]\\([A-Za-z0-9_]+\\)/\\1/"))
+     (vc-prepare-patches-separately)
      (diff-add-log-use-relative-names . t)
      (vc-git-annotate-switches . "-w")))
  '(save-interprogram-paste-before-kill t)
@@ -2863,25 +2933,6 @@ Windows format."
  '(woman-fill-column 70)
  '(yas-indent-line 'fixed))
 
- ;; '(epg-gpg-program "C:/tools/msys64/usr/bin/gpg.exe")
- ;; '(epg-gpgconf-program "C:/tools/msys64/usr/bin/gpgconf.exe")
- ;; '(epg-gpgsm-program "C:/tools/msys64/usr/bin/gpgsm.exe")
-
- ;; '(doom-challenger-deep-brighter-comments t)
- ;; '(doom-challenger-deep-brighter-modeline nil t)
- ;; '(doom-dracula-brighter-modeline nil t)
- ;; '(doom-dracula-padded-modeline nil t)
- ;; '(doom-gruvbox-light-brighter-comments t)
- ;; '(doom-gruvbox-light-brighter-modeline nil)
- ;; '(doom-gruvbox-light-variant "hard")
- ;; '(doom-horizon-brighter-comments t t)
- ;; '(doom-horizon-brighter-modeline nil t)
- ;; '(doom-horizon-comment-bg nil t)
- ;; '(doom-horizon-padded-modeline t t)
- ;; '(doom-tokyo-night-brighter-comments t)
- ;; '(doom-tokyo-night-brighter-modeline nil)
- ;; '(doom-tokyo-night-comment-bg nil)
-
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -2889,6 +2940,7 @@ Windows format."
  ;; If there is more than one, they won't work right.
  '(fixed-pitch ((t (:inherit default))))
  '(helm-M-x-short-doc ((t (:foreground "DimGray"))))
+ '(helm-candidate-number ((((class color) (min-colors 256)) :background "#bfc9ff" :foreground "#000000")))
  '(helm-ff-directory ((((class color) (min-colors 256)) :foreground "#00d3d0")))
  '(helm-ff-dotted-directory ((((class color) (min-colors 256)) :foreground "#c6daff")))
  '(helm-ff-executable ((((class color) (min-colors 256)) :foreground "#ffffff" :inherit italic)))
@@ -2898,15 +2950,19 @@ Windows format."
  '(helm-grep-finish ((((class color) (min-colors 256)) :foreground "#6ae4b9")))
  '(helm-grep-lineno ((((class color) (min-colors 256)) :foreground "#c6daff")))
  '(helm-grep-match ((((class color) (min-colors 256)) :foreground "#b6a0ff" :distant-foreground "#ff7f9f")))
+ '(helm-lisp-show-completion ((((class color) (min-colors 256)) :background "#c0e7d4")))
  '(helm-locate-finish ((((class color) (min-colors 256)) :foreground "#44bc44")))
  '(helm-match ((((class color) (min-colors 256)) :inherit bold :foreground "#b6a0ff" :distant-foreground "#ffffff")))
  '(helm-moccur-buffer ((((class color) (min-colors 256)) :inherit link)))
  '(helm-selection ((((class color) (min-colors 256)) :inherit bold :background "#2f3849" :extend t :distant-foreground "#b6a0ff")))
+ '(helm-separator ((((class color) (min-colors 256)) :foreground "#972500")))
  '(helm-source-header ((((class color) (min-colors 256)) :background "#303030" :foreground "#b6a0ff" :weight bold)))
  '(helm-visible-mark ((((class color) (min-colors 256)) :inherit (bold highlight))))
+ '(holiday ((((class color) (min-colors 256)) :background "#f8e6f5" :foreground "#8f0075")))
  '(mode-line ((((class color) (min-colors 256)) :box (:line-width 3 :color "#ccdfff"))))
  '(mode-line-inactive ((((class color) (min-colors 256)) :box (:line-width 3 :color "#e6e6e6"))))
  '(org-agenda-date-today ((((class color) (min-colors 256)) :inherit org-agenda-date :background "#ecedff" :underline nil)))
+ '(org-modern-label ((t (:box (:line-width (-3 . 1) :color "#ffffff") :underline nil :weight regular :width condensed))))
  '(tooltip ((((class color) (min-colors 256)) :background "#ccdfff" :foreground "#000000")))
  '(variable-pitch ((t (:family "IBM Plex Sans")))))
 (put 'narrow-to-region 'disabled nil)
@@ -2922,13 +2978,6 @@ Windows format."
 ;; modus-themes provide much better readability and support of modes than any
 ;; other theme currently available. Thank you Prot!
 ;;
-;; My historical custom configuration before version 4
-;;  '(modus-themes-tabs-accented t)
-;;  '(modus-themes-syntax nil)
-;;  '(modus-themes-mode-line '(accented borderless 3))
-;;  '(modus-themes-links '(no-underline background))
-;;  '(modus-themes-inhibit-reload nil)
-;;  '(modus-themes-box-buttons '(flat accented variable-pitch))
 (use-package modus-themes
   :config
   (setq modus-themes-bold-constructs t
@@ -2936,7 +2985,6 @@ Windows format."
 	modus-themes-headings '((1 rainbow))
 	modus-themes-italic-constructs t
 	modus-themes-mixed-fonts t
-	modus-themes-org-blocks 'tinted-background
 	modus-themes-variable-pitch-ui t)
   (setq modus-themes-common-palette-overrides
 	`(

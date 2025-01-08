@@ -1,0 +1,17 @@
+gnome-extra/gnome-software
+app-misc/anki
+app-text/foliate
+net-p2p/bitcoin-core
+media-sound/ardour
+
+# For blender 4.0 (2024-03-20):
+media-gfx/blender
+media-libs/openpgl
+media-libs/opensubdiv
+media-gfx/openvdb
+
+# For steam
+# */*::steam-overlay
+games-util/game-device-udev-rules
+sys-libs/libudev-compat
+games-util/steam-launcher
