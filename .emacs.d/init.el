@@ -1746,10 +1746,24 @@ the current file selected."
 ;; 	(list 'chronos-add-timer time name nil)
 ;; 	(list 'switch-to-buffer chronos--buffer)))
 
-(defun rod-nova-bana ()
-  "Count time until Nova Bana."
+(use-package chronos)
+
+(defun rod-kozarovce ()
+  "Count time until Kozarovce from Levice."
   (interactive)
-  (chronos-add-timer "11" "Nová Baňa" nil)
+  (chronos-add-timer "10" "Kozárovce" nil)
+  (switch-to-buffer chronos--buffer))
+
+(defun rod-zarnovica ()
+  "Count time until Žarnovica fron Žiar nad Hronom."
+  (interactive)
+  (chronos-add-timer "12" "Žarnovica" nil)
+  (switch-to-buffer chronos--buffer))
+
+(defun rod-nova-bana ()
+  "Count time until Nova Bana from Žarnovica."
+  (interactive)
+  (chronos-add-timer "10" "Nová Baňa" nil)
   (switch-to-buffer chronos--buffer))
 
 (defun rod-podhajska ()
@@ -1759,7 +1773,7 @@ the current file selected."
   (switch-to-buffer chronos--buffer))
 
 (defun rod-sala ()
-  "Count time until Sala."
+  "Count time until Sala from Galanta."
   (interactive)
   (chronos-add-timer "7" "Sala" nil)
   (switch-to-buffer chronos--buffer))
