@@ -1,6 +1,6 @@
 ;;; init.el --- Personal EMACS config by Roderik Ploszek -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2018-2024 Roderik Ploszek
+;; Copyright (C) 2018-2025 Roderik Ploszek
 
 ;; Author: Roderik Ploszek <roderik.ploszek@gmail.com>
 
@@ -36,7 +36,6 @@
     (package-initialize))
 ;; MELPA
 (require 'package)
-;; (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives (cons "melpa" "https://melpa.org/packages/") t)
 (add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/"))
@@ -174,9 +173,6 @@ folder."
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp"))
 
 (use-package diminish)
-
-(use-package org-roam-timestamps
-  :diminish org-roam-timestamps-mode)
 
 (use-package org
   :ensure org-contrib
@@ -432,7 +428,6 @@ If OTHERS is true, skip all entries that do not correspond to TAG."
   :ensure nil)
 (use-package org-id
   :ensure nil)
-(use-package org-roam-timestamps)
 
 (use-package calfw)
 (use-package calfw-org :commands cfw:open-org-calendar)
@@ -624,49 +619,53 @@ the first directory in `bibtex-completion-library-path'."
   (occur (concat "\*+ " regexp)))
 (defalias 'rod-org-occur-title 'rod-org-search-title)
 
-(when (equal system-type 'windows-nt)
-      ;; custom alert style for Windows
-      (use-package alert
-	:config
-	(defcustom alert-w32-notification-priorities
-	  '((urgent   . error)
-	    (high     . warning)
-	    (moderate . warning)
-	    (normal   . info)
-	    (low      . info)
-	    (trivial  . info))
-	  "A mapping of alert severities onto w32-notification priority values."
-	  :type '(alist :key-type symbol :value-type symbol)
-	  :group 'alert)
+(use-package alert
+  :commands (alert-define-style))
 
-	(defun alert-w32-notification-notify (info)
-	  "Show the alert defined by INFO with `w32-notification-notify'."
-	  (let ((id (w32-notification-notify :title (plist-get info :title)
-					     :body  (plist-get info :message)
-					     :icon (plist-get info :icon)
-					     :level (cdr (assq (plist-get info :severity)
-							       alert-w32-notification-priorities)))))
-	    (run-with-timer 8 nil #'w32-notification-close id))
-	  ;; (when id
-	  ;; (puthash id id alert-notifications-ids)))
-	  (alert-message-notify info))
+(message "alert is defined: %s" (fboundp 'alert-define-style))
 
-	(defun alert-w32-notification-remove (info)
-	  "Remove the `w32-notification-notify' message based on INFO :id."
-	  (message "Removing")
-	  (let ((id (and (plist-get info :id)
-			 (gethash (plist-get info :id) alert-notifications-ids))))
-	    (when id
-	      (w32-notification-close id)
-	      (remhash (plist-get info :id) alert-notifications-ids))))
+(pcase system-type
+  ('windows-nt
+   ;; custom alert style for Windows
+   (defcustom alert-w32-notification-priorities
+     '((urgent   . error)
+       (high     . warning)
+       (moderate . warning)
+       (normal   . info)
+       (low      . info)
+       (trivial  . info))
+     "A mapping of alert severities onto w32-notification priority values."
+     :type '(alist :key-type symbol :value-type symbol)
+     :group 'alert)
 
-	(alert-define-style 'w32-notification :title "Notify using w32-notification"
-			    :notifier #'alert-w32-notification-notify)
-	;; :remover #'alert-w32-notification-remove)
+   (defun alert-w32-notification-notify (info)
+     "Show the alert defined by INFO with `w32-notification-notify'."
+     (let ((id (w32-notification-notify :title (plist-get info :title)
+					:body  (plist-get info :message)
+					:icon (plist-get info :icon)
+					:level (cdr (assq (plist-get info :severity)
+							  alert-w32-notification-priorities)))))
+       (run-with-timer 8 nil #'w32-notification-close id))
+     ;; (when id
+     ;; (puthash id id alert-notifications-ids)))
+     (alert-message-notify info))
 
-	(setq alert-default-style 'w32-notification)))
+   (defun alert-w32-notification-remove (info)
+     "Remove the `w32-notification-notify' message based on INFO :id."
+     (message "Removing")
+     (let ((id (and (plist-get info :id)
+		    (gethash (plist-get info :id) alert-notifications-ids))))
+       (when id
+	 (w32-notification-close id)
+	 (remhash (plist-get info :id) alert-notifications-ids))))
 
-(setq alert-default-style 'notifications)
+   (alert-define-style 'w32-notification :title "Notify using w32-notification"
+		       :notifier #'alert-w32-notification-notify)
+   ;; :remover #'alert-w32-notification-remove)
+
+   (setq alert-default-style 'w32-notification))
+  ('gnu/linux
+   (setq alert-default-style 'notifications)))
 
 ;; org latex export to koma script
 (with-eval-after-load "ox-latex"
@@ -691,6 +690,11 @@ the first directory in `bibtex-completion-library-path'."
 (use-package org-pomodoro)
 (setq-default org-pomodoro-audio-player nil)
 
+(use-package org-tidy
+  :ensure t
+  :hook
+  (org-mode . org-tidy-mode))
+
 ;; org-roam
 (use-package org-roam
   :custom
@@ -706,23 +710,28 @@ the first directory in `bibtex-completion-library-path'."
   :config
   (org-roam-db-autosync-mode)
   ;; If using org-roam-protocol
-  (require 'org-roam-protocol))
+  (require 'org-roam-protocol)
+  :custom
+  (org-roam-capture-templates
+   `(("r" "reference to a website" entry
+      ""
+      :target
+      (file+head ,(rod-concat-documents-dir
+		   "System/knowledgebase.org")
+		 "Notes on websites")))))
 
-;; for org-roam (emacsql-libsqlite doesn't work well)
-;; see https://github.com/org-roam/org-roam/issues/1603
-;; (use-package sqlite3)
-;; (require 'sqlite3)
-;; (use-package emacsql-libsqlite3
-  ;; :custom
-  ;; (org-roam-database-connector 'libsqlite3))
-;; (add-hook 'after-init-hook 'org-roam-mode)
-;; change filename so that title is first (easier to see the actual title)
-;; (setq-default org-roam-capture-templates
-  ;; '(("d" "default" plain (function org-roam-capture--get-point)
-     ;; "%?"
-     ;; :file-name "${slug}-%<%Y-%m-%dT%H:%M>"
-     ;; :head "#+title: ${title}\n"
-     ;; :unnarrowed t)))
+(use-package org-roam-timestamps
+  :diminish org-roam-timestamps-mode)
+
+(use-package deft
+  :after org
+  :bind
+  ("C-c n d" . deft)
+  :custom
+  (deft-recursive t)
+  (deft-use-filter-string-for-filename t)
+  (deft-default-extension "org")
+  (deft-directory org-roam-directory))
 
 ;; helm-org-rifle
 (use-package helm-org-rifle
@@ -735,9 +744,15 @@ the first directory in `bibtex-completion-library-path'."
   ("<f2> g" . helm-org-agenda-files-headings)
   ("<f2> h" . helm-org-in-buffer-headings))
 
-;;; end org-mode
+(use-package org-modern
+  :config
+  (setq org-hide-emphasis-markers t
+	org-pretty-entities t)
+  )
 
-(setq deft-directory (rod-concat-documents-dir "System"))
+(use-package valign)
+
+;;; end org-mode
 
 (when (eq system-type 'windows-nt)
   (setq epg-gpg-home-directory (concat rod-userprofile-directory
@@ -769,6 +784,16 @@ the first directory in `bibtex-completion-library-path'."
 	  "f:/usr/share/man")
 
 ))
+
+;;; markdown
+(use-package gh-md)
+(use-package markdown-mode
+  :config
+  ;; From spacemacs:
+  ;; Make markdown-mode behave a bit more like org w.r.t. code blocks i.e.
+  ;; use proper syntax highlighting
+  (setq markdown-fontify-code-blocks-natively t))
+(use-package vmd-mode)
 
 ;;; html
 ;;
@@ -829,6 +854,9 @@ the first directory in `bibtex-completion-library-path'."
 ;; Automatically highlight trailing whitespace
 (add-hook 'prog-mode-hook
 	  (function (lambda () (setq show-trailing-whitespace t))))
+(add-hook 'latex-mode-hook
+	  (function (lambda () (setq show-trailing-whitespace t))))
+
 ;; Show trailing empty lines
 (setq-default indicate-empty-lines t)
 
@@ -842,7 +870,36 @@ the first directory in `bibtex-completion-library-path'."
 
 ;; Display time in the modeline, in 24-hour format
 (setq-default display-time-24hr-format t)
-(display-time-mode)
+(display-time-mode 1)
+
+;;; eshell
+(use-package eshell
+  :ensure nil
+  :config
+  (setq
+   eshell-cmpl-use-paring nil
+   eshell-hist-ignoredups t
+   eshell-history-size 512
+   ;; eshell-prompt-function
+   ;; '(lambda nil
+   ;;    #("$ " 0 2
+   ;; 	(rear-nonsticky
+   ;; 	 (font-lock-face read-only)
+   ;; 	 front-sticky
+   ;; 	 (font-lock-face read-only)
+   ;; 	 font-lock-face eshell-prompt read-only t)))
+   ;; eshell-prompt-regexp "^$ "
+   )
+  (add-hook 'eshell-mode-hook
+            (lambda ()
+              (define-key eshell-mode-map (kbd "C-c C-r") #'helm-eshell-history))))
+  ;; :bind (:map eshell-mode-map
+	      ;; ("C-c C-r" . helm-eshell-history)))
+
+;; display of certain characters and control codes to UTF-8
+(defun my-term-use-utf8 ()
+  (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
+(add-hook 'term-exec-hook 'my-term-use-utf8)
 
 ;;; helm
 (use-package helm
@@ -854,7 +911,7 @@ the first directory in `bibtex-completion-library-path'."
 	    ;; July 2019 default keybindings for <left> and <right> were changed
 	    ;; (https://github.com/emacs-helm/helm/commit/60466004daf894fb390b07f9ff8d4d9283a395ef),
 	    ;; this changes them back
-	    ;; Gues what ? They changed it back in May 2020
+	    ;; Guess what ? They changed it back in May 2020
 	    ;; (https://github.com/emacs-helm/helm/commit/b8cb661bae0d6649d1e555a4d7c65c08852bff11).
 	    ;; But I guess I keep this setting in case they change their mind
 	    ;; again
@@ -865,8 +922,10 @@ the first directory in `bibtex-completion-library-path'."
   :bind (
 	 ("M-x" . helm-M-x)
 	 ;; ("M-x" . execute-extended-command)
+	 ;; ("M-x" . counsel-M-x)
 	 ;; ("C-x b" . helm-mini)
-	 ("C-x b" . switch-to-buffer)
+	 ;; ("C-x b" . switch-to-buffer)
+	 ("C-x b" . helm-buffers-list)
 	 ;; ("C-x C-b" . helm-mini)
 	 ("C-x C-f" . helm-find-files)
 	 ("C-x C-r" . helm-recentf)
@@ -878,7 +937,11 @@ the first directory in `bibtex-completion-library-path'."
   :config
   (setq ivy-use-virtual-buffers t)
   (setq enable-recursive-minibuffers t)
-  (setq ivy-height 15))
+  (setq ivy-height 15)
+  :custom
+  (ivy-preferred-re-builders '((ivy--regex-ignore-order . "order")
+			       (ivy--regex-plus . "ivy")
+			       (ivy--regex-fuzzy . "fuzzy"))))
 
 ;;;; counsel
 (use-package counsel
@@ -902,7 +965,7 @@ the first directory in `bibtex-completion-library-path'."
          ("C-c o" . counsel-outline)
          ;; ("C-c T" . counsel-load-theme)
          ;; ("C-c z" . counsel-bookmark)
-         ("C-x C-r" . counsel-recentf)
+         ;; ("C-x C-r" . counsel-recentf)
          ;; ("C-x C-f" . counsel-find-file)
 	 ;; ("<f1> f" . counsel-describe-function)
 	 ;; ("<f1> v" . counsel-describe-variable)
@@ -916,7 +979,7 @@ the first directory in `bibtex-completion-library-path'."
 	 ;; ("C-S-o" . counsel-rhythmbox)
 	 )
   ;; (:map counsel-find-file-map
-        ;; ("RET" . ivy-alt-done))
+  ;; ("RET" . ivy-alt-done))
   ;; (:map minibuffer-local-map
   ;;       ("C-r" . 'counsel-minibuffer-history))
   )
@@ -994,8 +1057,12 @@ the first directory in `bibtex-completion-library-path'."
 (global-set-key (kbd "M-g M-f") 'rod-ffap)
 (global-set-key (kbd "C-S-o") 'rod-vim-open-line)
 (global-set-key (kbd "C-c y") 'copy-line)
+
 ;; M-z is normally zap-to-char, which is less useful than zap-up-to-char
 (global-set-key "\M-z" 'zap-up-to-char)
+;; 2024-05 Something happened in Windows 11 (AMD graphics driver perhaps) and
+;; \M-z doesn't work anymore
+(global-set-key (kbd "C-c z") 'zap-up-to-char)
 
 ;; BETTER KEY bindings
 ;; -------------------
@@ -1017,6 +1084,7 @@ the first directory in `bibtex-completion-library-path'."
 
 ;; User reserved space. Mnemonic s -- shell.
 (global-set-key (kbd "C-c s") 'rod-start-pwsh-here)
+(global-set-key (kbd "C-c s") 'rod-start-alacritty-here)
 ;; transpose-frame
 (global-set-key (kbd "C-c t") 'transpose-frame)
 ;; open in explorer shortcut
@@ -1091,6 +1159,12 @@ the first directory in `bibtex-completion-library-path'."
 (use-package all-the-icons
   :if (display-graphic-p))
 
+;; choco install nerd-fonts-ibmplexmono
+(use-package nerd-icons)
+(use-package nerd-icons-dired)
+;; :hook
+;; (dired-mode . nerd-icons-dired-mode))
+
 ;; v starsej verzii sa nastavoval skript 'symbol, ale min. od verzie 28.1 sa
 ;; pouziva 'emoji
 (when (member "Segoe UI Emoji" (font-family-list))
@@ -1138,7 +1212,31 @@ the first directory in `bibtex-completion-library-path'."
 ;; (set-frame-font "IBM Plex Mono-16" nil t)  ;; quite high
 
 (when (member "Cascadia Code" (font-family-list))
-  (set-frame-font "Cascadia Code-12" nil t))
+  (set-frame-font "Cascadia Code-10" nil t))
+
+;; Font size adjustment
+;; From https://www.reddit.com/r/emacs/comments/dpc2aj/comment/f5uasez/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+;; Disadvantage: manual setting of frame font size now doesn't work
+(defun rod-adjust-font-size (frame)
+  "Inspired by https://emacs.stackexchange.com/a/44930/17066. FRAME is ignored.
+If I let Windows handle DPI everything looks blurry."
+  ;; Using display names is unreliable...switched to checking the resolution
+  (let* ((attrs (frame-monitor-attributes)) ;; gets attribs for current frame
+         (monitor-name (cdr (nth 3 attrs)))
+         (width-mm (nth 1 (nth 2 attrs)))
+         (width-px (nth 3 (nth 0 attrs)))
+         (size 90)) ;; default for first screen at work
+    (when (eq width-px 2560) ;; middle display at work
+      (setq size 120))
+    (when (eq width-px 1920) ;; laptop screen
+      (setq size 90))
+    (when (eq (length (display-monitor-attributes-list)) 1) ;; override everything if no external monitors!
+      (setq size 90))
+    (rod-frame-font size)
+    ;; (message "hello")
+    ))
+(add-hook 'window-size-change-functions #'rod-adjust-font-size)
+(remove-hook 'window-size-change-functions #'rod-adjust-font-size)
 
 ;; light, smaller height than fira
 ;; (set-frame-font "DejaVu Sans Mono-12" nil t)
@@ -1205,36 +1303,48 @@ the first directory in `bibtex-completion-library-path'."
 	(holiday-fixed 12 24 "Štedrý deň")
 	(holiday-fixed 12 26 "Druhý sviatok vianočný")))
 
+(use-package astro-ts-mode)
+
 ;; inspired by https://github.com/xiaoxinghu/dotfiles/blob/master/emacs/.emacs.d/modules/treesitter.el
 (use-package treesit
   :ensure nil ;; internal package
   :commands (treesit-install-language-grammar)
   :init
   (setq treesit-language-source-alist
-    '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
-       (c . ("https://github.com/tree-sitter/tree-sitter-c"))
-       (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
-       (css . ("https://github.com/tree-sitter/tree-sitter-css"))
-       (go . ("https://github.com/tree-sitter/tree-sitter-go"))
-       (html . ("https://github.com/tree-sitter/tree-sitter-html"))
-       (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
-       (json . ("https://github.com/tree-sitter/tree-sitter-json"))
-       (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
-       (make . ("https://github.com/alemuller/tree-sitter-make"))
-       ;; (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
-       (python . ("https://github.com/tree-sitter/tree-sitter-python"))
-       ;; (php . ("https://github.com/tree-sitter/tree-sitter-php"))
-       (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
-       (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
-       (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
-       (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
-       (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
-       (astro . ("https://github.com/virchau13/tree-sitter-astro"))
-       ;; (zig . ("https://github.com/GrayJack/tree-sitter-zig"))
-       (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
-       ))
+	'((astro . ("https://github.com/virchau13/tree-sitter-astro"))
+	  (bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+	  (c . ("https://github.com/tree-sitter/tree-sitter-c"))
+	  (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
+	  (css . ("https://github.com/tree-sitter/tree-sitter-css"))
+	  (go . ("https://github.com/tree-sitter/tree-sitter-go"))
+	  (html . ("https://github.com/tree-sitter/tree-sitter-html"))
+	  (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+	  (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+	  (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+	  (make . ("https://github.com/alemuller/tree-sitter-make"))
+	  ;; (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
+	  (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+	  ;; (php . ("https://github.com/tree-sitter/tree-sitter-php"))
+	  (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
+	  (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
+	  (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
+	  (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+	  (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+	  (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
+	  ;; (zig . ("https://github.com/GrayJack/tree-sitter-zig"))
+	  (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
+	  ))
   :config
-  (treesit-major-mode-setup))
+  (treesit-major-mode-setup)
+  ;; (use-package combobulate
+  ;;   :preface
+  ;;   ;; You can customize Combobulate's key prefix here.
+  ;;   ;; Note that you may have to restart Emacs for this to take effect!
+  ;;   (setq combobulate-key-prefix "C-c m"))
+  )
+
+(setq major-mode-remap-alist
+ '((python-mode . python-ts-mode)))
 
 ;;; auctex
 ;(require 'tex-site)			; TODO: Why is this here? This shouldn't
@@ -1315,8 +1425,9 @@ the first directory in `bibtex-completion-library-path'."
   :commands (yas-global-mode yas-minor-mode yas-activate-extra-mode)
   :diminish yas-minor-mode " y"
   :hook (prog-mode-hook . yas-minor-mode)
-  :config
-  ; personal snippets
+  (org-mode-hook . yas-minor-mode)
+  :config (yas-global-mode)
+					; personal snippets
   (add-to-list 'yas-snippet-dirs
 	       (concat user-emacs-directory "snippets")))
 
@@ -1349,21 +1460,16 @@ the first directory in `bibtex-completion-library-path'."
       (setq flycheck-python-pylint-executable "c:/python312/python.exe")
       (setq flycheck-python-flake8-executable "c:/python312/python.exe")
       (setq flycheck-python-pycompile-executable "c:/python312/python.exe"))
+
 ;; lsp python
-;;
-;; TODO: Remove
-;; (use-package lsp-pyright
-  ;; :init
-  ;; (setq lsp-pyright-multi-root nil)
-  ;; :hook (python-mode-hook . (lambda ()
-                              ;; (require 'lsp-pyright)
-                              ;; (lsp-deferred))))
 
 (use-package python
-  :mode (("SConstruct\\'" . python-mode) ("SConscript\\'" . python-mode))
-  :hook (python-mode-hook . (lambda ()
-			      (require 'lsp-pylsp)
-			      (lsp))))
+  :mode (("SConstruct\\'" . python-ts-mode) ("SConscript\\'" . python-ts-mode))
+  :hook (python-ts-mode-hook . (lambda ()
+			      ;; (require 'lsp-pylsp)
+			      (lsp)
+			      )))
+(use-package blacken)
 ;; pip install python-lsp-server
 
 ;;; Rust
@@ -1382,7 +1488,7 @@ the first directory in `bibtex-completion-library-path'."
 (defun rod-copy-whole-buffer ()
   "Copy whole buffer."
   (interactive)
-  (kill-ring-save 1 (buffer-size)))
+  (kill-ring-save 1 (+ (buffer-size) 1)))
 
 (defun rod-replace-whole-buffer ()
   "Replace whole buffer with contents from the kill ring."
@@ -1396,15 +1502,16 @@ the first directory in `bibtex-completion-library-path'."
    " \\[at\\] " "@"
    str))
 
-;; (advice-add 'current-kill :filter-return #'rod-replace-at)
+(advice-add 'current-kill :filter-return #'rod-replace-at)
 
-(defun rod-remove-prefix (str)
+(defun rod-remove-uim-prefix (str)
   "Advice function for mail addresses from AIS"
   (string-remove-prefix
    "https://uim.fei.stuba.sk"
    str))
 
-(advice-add 'current-kill :filter-return #'rod-remove-prefix)
+(advice-add 'current-kill :filter-return #'rod-remove-uim-prefix)
+(advice-remove 'current-kill #'rod-remove-uim-prefix)
 
 (defun rod-kill-current-buffer-and-enter-dired ()
   (interactive)
@@ -1528,13 +1635,13 @@ before switching to a different branch in version control."
 
       (setq mark-ring (mapcar (lambda (mk) (copy-marker (marker-position mk)))
                               mark-ring))
-    (if display-flag
-        ;; Presumably the current buffer is shown in the selected frame, so
-        ;; we want to display the clone elsewhere.
-        (let ((same-window-regexps nil)
-              (same-window-buffer-names))
-          (pop-to-buffer new)))
-    new)))
+      (if display-flag
+          ;; Presumably the current buffer is shown in the selected frame, so
+          ;; we want to display the clone elsewhere.
+          (let ((same-window-regexps nil)
+		(same-window-buffer-names))
+            (pop-to-buffer new)))
+      new)))
 
 (defun rod-newline-advice (&optional arg interactive)
   "Remove trailing whitespace when adding a newline."
@@ -1639,10 +1746,24 @@ the current file selected."
 ;; 	(list 'chronos-add-timer time name nil)
 ;; 	(list 'switch-to-buffer chronos--buffer)))
 
-(defun rod-nova-bana ()
-  "Count time until Nova Bana."
+(use-package chronos)
+
+(defun rod-kozarovce ()
+  "Count time until Kozarovce from Levice."
   (interactive)
-  (chronos-add-timer "11" "Nová Baňa" nil)
+  (chronos-add-timer "10" "Kozárovce" nil)
+  (switch-to-buffer chronos--buffer))
+
+(defun rod-zarnovica ()
+  "Count time until Žarnovica fron Žiar nad Hronom."
+  (interactive)
+  (chronos-add-timer "12" "Žarnovica" nil)
+  (switch-to-buffer chronos--buffer))
+
+(defun rod-nova-bana ()
+  "Count time until Nova Bana from Žarnovica."
+  (interactive)
+  (chronos-add-timer "10" "Nová Baňa" nil)
   (switch-to-buffer chronos--buffer))
 
 (defun rod-podhajska ()
@@ -1652,7 +1773,7 @@ the current file selected."
   (switch-to-buffer chronos--buffer))
 
 (defun rod-sala ()
-  "Count time until Sala."
+  "Count time until Sala from Galanta."
   (interactive)
   (chronos-add-timer "7" "Sala" nil)
   (switch-to-buffer chronos--buffer))
@@ -1986,8 +2107,12 @@ Windows format."
 
 ;; projectile
 (use-package projectile
-  ;; FIXME this hook doesn't work
-  :hook (prog-mode-hook . projectile-mode)
+  ;; 2024-12-01 Have to turn this off.
+  ;; projectile-track-known-projects-find-file-hook is slowing down everything
+  ;; (org-mode and company completions)
+
+  ;; :hook (prog-mode-hook . projectile-mode)
+  ;; (remove-hook 'prog-mode-hook 'projectile-mode)
   :bind
   ("C-c p" . projectile-command-map)
   :diminish projectile-mode
@@ -1996,6 +2121,17 @@ Windows format."
 	'(".eps" ".bst" ".aux" ".bbl" ".bcf" ".blg" ".fdb_latexmk" ".fls" ".lof" ".lot" ".out" ".pri" ".tox")))
 
 ;; smartparens
+
+;; stolen from spacemacs
+(defun spacemacs/smartparens-pair-newline (id action context)
+  (save-excursion
+    (newline)
+    (indent-according-to-mode)))
+
+(defun spacemacs/smartparens-pair-newline-and-indent (id action context)
+  (spacemacs/smartparens-pair-newline id action context)
+  (indent-according-to-mode))
+
 (use-package smartparens
   :diminish smartparens-mode
   ;; These hooks caused problems (2023-05-03) "smartparens.elc failed to define
@@ -2004,24 +2140,33 @@ Windows format."
   ;; :hook (prog-mode-hook org-mode-hook latex-mode-hook)
   :custom (sp-base-key-bindings 'sp)
   (sp-override-key-bindings '(("C-<right>". nil)
-				   ("C-<left>" . nil)
-				   ("C-S-<backspace>" . nil)
-				   ("C-M-<right>" . sp-forward-sexp)
-				   ("C-M-<left>" . sp-backward-sexp)
-				   ;; https://github.com/Fuco1/smartparens/issues/602#issuecomment-1249061100
-				   ;; ("M-<backspace>" . sp-backward-kill-sexp)
-				   ("M-[ M-[" . sp-backward-slurp-sexp)
-				   ("M-] M-]" . sp-forward-slurp-sexp)
-				   ("M-[ M-]" . sp-backward-barf-sexp)
-				   ("M-] M-[" . sp-forward-barf-sexp)
-				   ("M-] M-p" . sp-unwrap-sexp)
-				   ("M-[ M-p" . sp-rewrap-sexp)))
-  :init
-  (require 'smartparens-config)
+			      ("C-<left>" . nil)
+			      ("C-S-<backspace>" . nil)
+			      ("C-M-<right>" . sp-forward-sexp)
+			      ("C-M-<left>" . sp-backward-sexp)
+			      ;; https://github.com/Fuco1/smartparens/issues/602#issuecomment-1249061100
+			      ;; ("M-<backspace>" . sp-backward-kill-sexp)
+			      ("M-[ M-[" . sp-backward-slurp-sexp)
+			      ("M-] M-]" . sp-forward-slurp-sexp)
+			      ("M-[ M-]" . sp-backward-barf-sexp)
+			      ("M-] M-[" . sp-forward-barf-sexp)
+			      ("M-] M-p" . sp-unwrap-sexp)
+			      ("M-[ M-p" . sp-rewrap-sexp)))
+  ;; :init
+  ;; (require 'smartparens-config)
+  :hook ((prog-mode-hook org-mode-hook) . smartparens-mode)
   :config
-  (smartparens-global-mode 1)
+  (require 'smartparens-config)
+  ;; (smartparens-global-mode 1)
   ;; (sp-use-smartparens-bindings)
   ;; (sp--update-override-key-bindings)
+  ;; don't create a pair with single quote in minibuffer
+  (sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil)
+  (sp-local-pair 'minibuffer-mode "'" nil :actions nil)
+  (sp-pair "{" nil :post-handlers
+           '(:add (spacemacs/smartparens-pair-newline-and-indent "RET")))
+  (sp-pair "[" nil :post-handlers
+           '(:add (spacemacs/smartparens-pair-newline-and-indent "RET")))
   :commands (smartparens-mode show-smartparens-mode))
 
 (use-package yaml-mode)
@@ -2057,27 +2202,29 @@ Windows format."
      gnus-sum-thread-tree-vertical "│"
      gnus-article-browse-delete-temp t
      gnus-treat-strip-trailing-blank-lines 'last
-     ;; gnus-keep-backlog 'nil
      gnus-summary-display-arrow nil ; Don't show that annoying arrow:
      gnus-mime-display-multipart-related-as-mixed t ; Show more MIME-stuff:
      gnus-auto-select-first nil ; Don't get the first article automatically:
      smiley-style 'medium)
     (setq gnus-refer-article-method
 	  '(current
-            (nnregistry)))
-     ;; gnus-keep-backlog '0)
+            (nnregistry)))))
 
-  ;; Check for mail every 10 minutes
-  (gnus-demon-add-handler 'gnus-demon-scan-mail 10 nil)
-  (require 'smtpmail-multi)
-  (require 'gnus-notes-helm)
-  ;; recent mail using gnus-notes
-  (gnus-notes-init)
+;; some inspiration taken from https://github.com/Thaodan/emacs.d/
+;; recent mail using gnus-notes
+(use-package gnus-notes
+  :after gnus
+  :config
+  (gnus-notes-init))
+(use-package gnus-notes-helm
+  :ensure nil
+  :after gnus-notes
+  :config (defalias 'rod-gnus-history 'gnus-notes-helm)
+
   ;; create more memorable command
   (defalias 'rod-recent-mail 'gnus-notes-helm)
-  (defalias 'rod-gnus-recent 'gnus-notes-helm)))
-;; TODO - I have to set so that it doesn't connect when the PC is offline
-;; (gnus-demon-remove-handler 'gnus-demon-scan-mail)
+  (defalias 'rod-gnus-recent 'gnus-notes-helm)
+  (defalias 'rod-gnus-history 'gnus-notes-helm))
 
 (use-package gnus-sum
   :ensure nil
@@ -2256,6 +2403,9 @@ Windows format."
 
 (use-package rg)
 
+;; wait for Emacs 30
+;; (use-package corfu)
+
 (use-package lsp-mode
   :diminish lsp-mode
   ;; uncomment to enable gopls http debug server
@@ -2282,6 +2432,39 @@ Windows format."
             ;; (setq lsp-ui-doc-enable nil)
 	    )
   )
+
+;; lsp-booster: download and/or compile exe from https://github.com/blahgeek/emacs-lsp-booster
+
+(defun lsp-booster--advice-json-parse (old-fn &rest args)
+  "Try to parse bytecode instead of json."
+  (or
+   (when (equal (following-char) ?#)
+     (let ((bytecode (read (current-buffer))))
+       (when (byte-code-function-p bytecode)
+         (funcall bytecode))))
+   (apply old-fn args)))
+(advice-add (if (progn (require 'json)
+                       (fboundp 'json-parse-buffer))
+                'json-parse-buffer
+              'json-read)
+            :around
+            #'lsp-booster--advice-json-parse)
+
+(defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+  "Prepend emacs-lsp-booster command to lsp CMD."
+  (let ((orig-result (funcall old-fn cmd test?)))
+    (if (and (not test?)                             ;; for check lsp-server-present?
+             (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+             lsp-use-plists
+             (not (functionp 'json-rpc-connection))  ;; native json-rpc
+             (executable-find "emacs-lsp-booster"))
+        (progn
+          (when-let ((command-from-exec-path (executable-find (car orig-result))))  ;; resolve command from exec-path (in case not found in $PATH)
+            (setcar orig-result command-from-exec-path))
+          (message "Using emacs-lsp-booster for %s!" orig-result)
+          (cons "emacs-lsp-booster" orig-result))
+      orig-result)))
+(advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
 
 (use-package company
   :diminish company-mode
@@ -2372,6 +2555,11 @@ Windows format."
   (interactive)
   (insert "–"))
 
+(defun rod-insert-pdflatex-command ()
+  "Insert pdflatex command with my favourite parameters."
+  (interactive)
+  (insert "latexmk -pdf --synctex=1 -interaction=nonstopmode -file-line-error "))
+
 (use-package solaire-mode
   :init
   (solaire-mode))
@@ -2437,21 +2625,26 @@ Windows format."
   :ensure nil)
 
 (use-package evil
-;; Tutorial: how to use toggle-input-method in evil-mode. You don't have to do
-;; anything! Insert mode of evil will automatically take the input method that
-;; was set in Emacs mode. So as long as you have input method set to
-;; slovak-qwerty in evil insert mode, make sure that input method is toggled in
+  ;; Tutorial: how to use toggle-input-method in evil-mode. You don't have to do
+  ;; anything! Insert mode of evil will automatically take the input method that
+  ;; was set in Emacs mode. So as long as you have input method set to
+  ;; slovak-qwerty in evil insert mode, make sure that input method is toggled in
   ;; Emacs mode and you don't have to add hook for it.
   :config
-  (evil-set-initial-state 'calendar-mode 'emacs))
+  (evil-set-initial-state 'calendar-mode 'emacs)
+  (setq evil-default-state 'normal
+	evil-symbol-word-search t))
 
 (use-package evil-org
   :ensure t
-  :after org
+  :after (evil org)
   :diminish evil-org-mode
-  :hook (org-mode-hook . evil-org-mode)
+  :hook ((org-mode-hook . evil-org-mode)
+	 (org-agenda-mode-hook . evil-org-mode))
   :config
   (require 'evil-org-agenda)
+  (evil-org-set-key-theme
+   '(navigation insert return textobjects additional calendar))
   (evil-org-agenda-set-keys))
 
 ;; faster scrolling in long lines
@@ -2531,18 +2724,18 @@ Windows format."
     (setq calibredb-root-dir (rod-concat-userprofile-dir "Calibre Library"))))
 
 (use-package slime
-    :commands slime-mode
-    :init
-    (progn
-      (setq slime-contribs '(slime-asdf
-                             slime-fancy
-                             slime-indentation
-                             slime-sbcl-exts
-                             slime-scratch)
-            inferior-lisp-program "sbcl")
-      ;; enable fuzzy matching in code buffer and SLIME REPL
-      (setq slime-complete-symbol*-fancy t)
-      (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)))
+  :commands slime-mode
+  :init
+  (progn
+    (setq slime-contribs '(slime-asdf
+                           slime-fancy
+                           slime-indentation
+                           slime-sbcl-exts
+                           slime-scratch)
+          inferior-lisp-program "sbcl")
+    ;; enable fuzzy matching in code buffer and SLIME REPL
+    (setq slime-complete-symbol*-fancy t)
+    (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)))
 
 (use-package esup
   :ensure t)
@@ -2570,8 +2763,8 @@ Windows format."
   :bind (
 	 ;; ([next] . good-scroll-up-full-screen)
 	 ;; ([prior] . good-scroll-down-full-screen)
-	 ;; ([next] . scroll-up-command)
-	 ;; ([prior] . scroll-down-command)
+	 ([next] . scroll-up-command)
+	 ([prior] . scroll-down-command)
 	 ))
 
 (use-package emacs
@@ -2693,6 +2886,7 @@ Windows format."
 	      (if time-zone " (")
 	      time-zone
 	      (if time-zone ")")))
+ '(calendar-view-holidays-initially-flag t)
  '(calibredb-ids-width 10)
  '(column-number-mode t)
  '(comint-move-point-for-output 'all)
@@ -2708,11 +2902,11 @@ Windows format."
  '(ef-themes-variable-pitch-ui t)
  '(electric-indent-mode t)
  '(electric-pair-mode nil)
+ '(elfeed-search-date-format '("%y-%m-%d %H:%M" 14 :left))
  '(elfeed-search-filter "@6-months-ago")
  '(epg-debug t)
  '(epg-passphrase-coding-system 'utf-8)
  '(eshell-cmpl-use-paring nil)
- '(evil-symbol-word-search t)
  '(ffap-file-name-with-spaces t)
  '(file-name-at-point-functions nil nil nil "Slows down helm, all fhook functions disabled 2023-05-02")
  '(global-hl-line-sticky-flag t)
@@ -2724,22 +2918,35 @@ Windows format."
  '(helm-M-x-show-short-doc t)
  '(helm-adaptive-mode t)
  '(helm-autoresize-mode t)
+ '(helm-candidate-number-limit 50)
  '(helm-org-ignore-autosaves t)
  '(httpd-port 8081)
+ '(ignored-local-variable-values
+   '((eval font-lock-add-keywords nil
+	   `((,(concat "("
+		       (regexp-opt
+			'("sp-do-move-op" "sp-do-move-cl" "sp-do-put-op" "sp-do-put-cl" "sp-do-del-op" "sp-do-del-cl")
+			t)
+		       "\\_>")
+	      1 'font-lock-variable-name-face)))))
  '(image-dired-cmd-create-thumbnail-options
    '("convert" "-size" "%wx%h" "%f[0]" "-resize" "%wx%h>" "-strip" "jpeg:%t"))
  '(image-dired-cmd-create-thumbnail-program "magick")
  '(image-dired-thumb-relief 0)
  '(image-use-external-converter t)
  '(insert-shebang-ignore-extensions '("txt" "org" "el" "py"))
+ '(ivy-height 20)
  '(ivy-hooks-alist '((t . toggle-input-method)))
  '(kill-do-not-save-duplicates t)
  '(kill-ring-max 120)
  '(line-number-mode t)
  '(lsp-enable-indentation nil)
  '(lsp-progress-spinner-type 'vertical-rising)
- '(magic-latex-enable-pretty-symbols nil)
+ '(lsp-ruff-server-command '("ruff" "server" "--preview"))
+ '(magic-latex-enable-block-align nil)
+ '(magic-latex-enable-pretty-symbols t)
  '(magit-copy-revision-abbreviated t)
+ '(markdown-max-image-size '(700))
  '(mode-line-format
    '("%e" mode-line-front-space mode-line-mule-info mode-line-client mode-line-modified mode-line-remote mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position evil-mode-line-tag
      (vc-mode vc-mode)
@@ -2755,6 +2962,7 @@ Windows format."
  '(org-babel-python-command "py")
  '(org-capture-use-agenda-date t)
  '(org-clock-report-include-clocking-task t)
+ '(org-confirm-babel-evaluate nil)
  '(org-expiry-inactive-timestamps t)
  '(org-export-in-background nil)
  '(org-file-apps
@@ -2774,8 +2982,11 @@ Windows format."
  '(org-html-with-latex 'mathjax)
  '(org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
  '(org-image-actual-width '(450))
+ '(org-latex-engraved-preamble
+   "\\usepackage{fvextra}\12\12[FVEXTRA-SETUP]\12\12% Make line numbers smaller and grey.\12\\renewcommand\\theFancyVerbLine{\\footnotesize\\color{black!40!white}\\arabic{FancyVerbLine}}\12\12\\usepackage{xcolor}\12\12% In case engrave-faces-latex-gen-preamble has not been run.\12\\providecolor{EfD}{HTML}{f7f7f7}\12\\providecolor{EFD}{HTML}{28292e}\12\12% Define a Code environment to prettily wrap the fontified code.\12\\usepackage[breakable,xparse]{tcolorbox}\12\\DeclareTColorBox[]{Code}{o}%\12{colback=EfD!98!EFD, colframe=EfD!95!EFD,\12  fontupper=\\tiny\\setlength{\\fboxsep}{0pt},\12  colupper=EFD,\12  IfNoValueTF={#1}%\12  {boxsep=2pt, arc=2.5pt, outer arc=2.5pt,\12    boxrule=0.5pt, left=2pt}%\12  {boxsep=2.5pt, arc=0pt, outer arc=0pt,\12    boxrule=0pt, leftrule=1.5pt, left=0.5pt},\12  right=2pt, top=1pt, bottom=0.5pt,\12  breakable}\12\12[LISTINGS-SETUP]")
  '(org-latex-pdf-process
    '("%latex -interaction nonstopmode -shell-escape -output-directory %o %f" "%latex -interaction nonstopmode -shell-escape -output-directory %o %f" "%latex -interaction nonstopmode -shell-escape -output-directory %o %f"))
+ '(org-latex-src-block-backend 'engraved)
  '(org-latex-tables-booktabs t)
  '(org-log-into-drawer t)
  '(org-man-command 'woman)
@@ -2814,7 +3025,7 @@ Windows format."
  '(org-use-sub-superscripts '{})
  '(package-menu-async nil)
  '(package-selected-packages
-   '(lua-mode treesit good-scroll flycheck-rust ron-mode toml-mode rust-mode cargo emacs-gc-stats insert-shebang nasm-mode notmuch x86-lookup window-purpose general typescript-mode yaml-mode rg magit ein quickrun name-this-color evil-org helpful dired-narrow helm-pydoc pydoc biblio bui queue cfrs websocket edit-server helm-descbinds keyfreq consult-dir mixed-pitch ef-themes consult-spotify ivy-spotify espotify matlab-mode evil-tex org-panel org-mouse org-protocol tex benchmark-init csv-mode company-auctex company-math company-reftex magic-latex-buffer typo math-symbol-lists maven-test-mode pcsv org-remark dirvish org-web-tools slime-company elquery rebecca-theme gnus-notes gnus-notes-helm org-mru-clock evil-smartparens emacsql-libsqlite3 svg-clock blacken imenu-list calibredb deft msvc fd-dired auctex-latexmk evil-numbers saveplace-pdf-view org-pdftools helm-bbdb sphinx-doc yasnippet expand-region helm-org js2-mode nodejs-repl git-package esup chronos dianyou dired-recent helm-org-rifle darkroom python-docstring smtpmail-multi elfeed evil-surround ggtags diminish disaster pos-tip yapfify evil-mc ivy-posframe counsel-org-clock auto-indent-mode aggressive-indent helm-lsp drag-stuff projectile-git-autofetch go-mode org-pomodoro calfw-org calfw-cal calfw spray hide-mode-line impatient-mode ace-jump-mode all-the-icons-gnus all-the-icons-dired rainbow-mode flycheck-mypy vue-mode web-beautify interleave htmlize ace-window poly-markdown highlight-indent-guides neotree auctex org-present))
+   '(org-roam-ui lua-mode treesit rustic corfu astro-ts-mode combobulate web-mode org-tidy valign org-modern vmd-mode gh-md dockerfile-mode visual-fill-column ivy-hydra ahk-mode engrave-faces nerd-icons-dired good-scroll flycheck-rust ron-mode toml-mode rust-mode cargo emacs-gc-stats insert-shebang nasm-mode notmuch x86-lookup window-purpose general typescript-mode yaml-mode rg magit ein quickrun name-this-color evil-org helpful dired-narrow helm-pydoc pydoc biblio bui queue cfrs websocket edit-server helm-descbinds keyfreq consult-dir mixed-pitch ef-themes consult-spotify ivy-spotify espotify matlab-mode evil-tex org-panel org-mouse org-protocol tex benchmark-init csv-mode company-auctex company-math company-reftex magic-latex-buffer typo math-symbol-lists maven-test-mode pcsv org-remark dirvish org-web-tools slime-company elquery rebecca-theme gnus-notes gnus-notes-helm org-mru-clock evil-smartparens emacsql-libsqlite3 svg-clock blacken imenu-list calibredb deft msvc fd-dired auctex-latexmk evil-numbers saveplace-pdf-view org-pdftools helm-bbdb sphinx-doc yasnippet expand-region helm-org js2-mode nodejs-repl git-package esup chronos dianyou dired-recent helm-org-rifle darkroom python-docstring smtpmail-multi elfeed evil-surround ggtags diminish disaster pos-tip yapfify evil-mc ivy-posframe counsel-org-clock auto-indent-mode aggressive-indent helm-lsp drag-stuff projectile-git-autofetch go-mode org-pomodoro calfw-org calfw-cal calfw spray hide-mode-line impatient-mode ace-jump-mode all-the-icons-gnus all-the-icons-dired rainbow-mode flycheck-mypy vue-mode web-beautify interleave htmlize ace-window poly-markdown highlight-indent-guides neotree auctex org-present))
  '(pdf-view-continuous t)
  '(pdf-view-selection-style 'glyph)
  '(projectile-indexing-method 'alien)
@@ -2825,7 +3036,12 @@ Windows format."
  '(request-backend 'url-retrieve)
  '(ring-bell-function 'ignore)
  '(safe-local-variable-values
-   '((vc-prepare-patches-separately)
+   '((TeX-master . t)
+     (etags-regen-ignores "test/manual/etags/")
+     (etags-regen-regexp-alist
+      (("c" "objc")
+       "/[ \11]*DEFVAR_[A-Z_ \11(]+\"\\([^\"]+\\)\"/\\1/" "/[ \11]*DEFVAR_[A-Z_ \11(]+\"[^\"]+\",[ \11]\\([A-Za-z0-9_]+\\)/\\1/"))
+     (vc-prepare-patches-separately)
      (diff-add-log-use-relative-names . t)
      (vc-git-annotate-switches . "-w")))
  '(save-interprogram-paste-before-kill t)
@@ -2863,25 +3079,6 @@ Windows format."
  '(woman-fill-column 70)
  '(yas-indent-line 'fixed))
 
- ;; '(epg-gpg-program "C:/tools/msys64/usr/bin/gpg.exe")
- ;; '(epg-gpgconf-program "C:/tools/msys64/usr/bin/gpgconf.exe")
- ;; '(epg-gpgsm-program "C:/tools/msys64/usr/bin/gpgsm.exe")
-
- ;; '(doom-challenger-deep-brighter-comments t)
- ;; '(doom-challenger-deep-brighter-modeline nil t)
- ;; '(doom-dracula-brighter-modeline nil t)
- ;; '(doom-dracula-padded-modeline nil t)
- ;; '(doom-gruvbox-light-brighter-comments t)
- ;; '(doom-gruvbox-light-brighter-modeline nil)
- ;; '(doom-gruvbox-light-variant "hard")
- ;; '(doom-horizon-brighter-comments t t)
- ;; '(doom-horizon-brighter-modeline nil t)
- ;; '(doom-horizon-comment-bg nil t)
- ;; '(doom-horizon-padded-modeline t t)
- ;; '(doom-tokyo-night-brighter-comments t)
- ;; '(doom-tokyo-night-brighter-modeline nil)
- ;; '(doom-tokyo-night-comment-bg nil)
-
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -2889,6 +3086,7 @@ Windows format."
  ;; If there is more than one, they won't work right.
  '(fixed-pitch ((t (:inherit default))))
  '(helm-M-x-short-doc ((t (:foreground "DimGray"))))
+ '(helm-candidate-number ((((class color) (min-colors 256)) :background "#bfc9ff" :foreground "#000000")))
  '(helm-ff-directory ((((class color) (min-colors 256)) :foreground "#00d3d0")))
  '(helm-ff-dotted-directory ((((class color) (min-colors 256)) :foreground "#c6daff")))
  '(helm-ff-executable ((((class color) (min-colors 256)) :foreground "#ffffff" :inherit italic)))
@@ -2898,15 +3096,19 @@ Windows format."
  '(helm-grep-finish ((((class color) (min-colors 256)) :foreground "#6ae4b9")))
  '(helm-grep-lineno ((((class color) (min-colors 256)) :foreground "#c6daff")))
  '(helm-grep-match ((((class color) (min-colors 256)) :foreground "#b6a0ff" :distant-foreground "#ff7f9f")))
+ '(helm-lisp-show-completion ((((class color) (min-colors 256)) :background "#c0e7d4")))
  '(helm-locate-finish ((((class color) (min-colors 256)) :foreground "#44bc44")))
  '(helm-match ((((class color) (min-colors 256)) :inherit bold :foreground "#b6a0ff" :distant-foreground "#ffffff")))
  '(helm-moccur-buffer ((((class color) (min-colors 256)) :inherit link)))
  '(helm-selection ((((class color) (min-colors 256)) :inherit bold :background "#2f3849" :extend t :distant-foreground "#b6a0ff")))
+ '(helm-separator ((((class color) (min-colors 256)) :foreground "#972500")))
  '(helm-source-header ((((class color) (min-colors 256)) :background "#303030" :foreground "#b6a0ff" :weight bold)))
  '(helm-visible-mark ((((class color) (min-colors 256)) :inherit (bold highlight))))
+ '(holiday ((((class color) (min-colors 256)) :background "#f8e6f5" :foreground "#8f0075")))
  '(mode-line ((((class color) (min-colors 256)) :box (:line-width 3 :color "#ccdfff"))))
  '(mode-line-inactive ((((class color) (min-colors 256)) :box (:line-width 3 :color "#e6e6e6"))))
  '(org-agenda-date-today ((((class color) (min-colors 256)) :inherit org-agenda-date :background "#ecedff" :underline nil)))
+ '(org-modern-label ((t (:box (:line-width (-3 . 1) :color "#ffffff") :underline nil :weight regular :width condensed))))
  '(tooltip ((((class color) (min-colors 256)) :background "#ccdfff" :foreground "#000000")))
  '(variable-pitch ((t (:family "IBM Plex Sans")))))
 (put 'narrow-to-region 'disabled nil)
@@ -2922,13 +3124,6 @@ Windows format."
 ;; modus-themes provide much better readability and support of modes than any
 ;; other theme currently available. Thank you Prot!
 ;;
-;; My historical custom configuration before version 4
-;;  '(modus-themes-tabs-accented t)
-;;  '(modus-themes-syntax nil)
-;;  '(modus-themes-mode-line '(accented borderless 3))
-;;  '(modus-themes-links '(no-underline background))
-;;  '(modus-themes-inhibit-reload nil)
-;;  '(modus-themes-box-buttons '(flat accented variable-pitch))
 (use-package modus-themes
   :config
   (setq modus-themes-bold-constructs t
@@ -2936,7 +3131,6 @@ Windows format."
 	modus-themes-headings '((1 rainbow))
 	modus-themes-italic-constructs t
 	modus-themes-mixed-fonts t
-	modus-themes-org-blocks 'tinted-background
 	modus-themes-variable-pitch-ui t)
   (setq modus-themes-common-palette-overrides
 	`(
@@ -3066,14 +3260,18 @@ Windows format."
        `(helm-grep-lineno            ((,c :foreground ,fg-alt)))
        `(helm-grep-finish            ((,c :foreground ,cyan-cooler)))
        `(helm-locate-finish          ((,c :foreground ,green)))
+       `(helm-separator              ((,c :foreground ,red-warmer)))
+       `(helm-candidate-number       ((,c :background ,bg-blue-intense :foreground ,fg-main)))
+       `(helm-lisp-show-completion   ((,c :background ,bg-sage)))
        `(org-agenda-date-today       ((,c :inherit org-agenda-date :background ,bg-blue-nuanced :underline nil)))
+       `(holiday ((,c :background ,bg-magenta-nuanced :foreground ,date-holiday)))
        )))
 
   ;; Hook doesn't work. Don't know why. Calling it explicitly after loading the
   ;; theme four lines below.
   ;;
   (add-hook 'modus-themes-after-load-theme-hook #'rod-modus-themes-custom-faces)
-  (load-theme 'modus-operandi :no-confim)
+  (load-theme 'modus-vivendi :no-confim)
   (rod-modus-themes-custom-faces)
   )
 
