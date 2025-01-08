@@ -619,49 +619,53 @@ the first directory in `bibtex-completion-library-path'."
   (occur (concat "\*+ " regexp)))
 (defalias 'rod-org-occur-title 'rod-org-search-title)
 
-(when (equal system-type 'windows-nt)
-      ;; custom alert style for Windows
-      (use-package alert
-	:config
-	(defcustom alert-w32-notification-priorities
-	  '((urgent   . error)
-	    (high     . warning)
-	    (moderate . warning)
-	    (normal   . info)
-	    (low      . info)
-	    (trivial  . info))
-	  "A mapping of alert severities onto w32-notification priority values."
-	  :type '(alist :key-type symbol :value-type symbol)
-	  :group 'alert)
+(use-package alert
+  :commands (alert-define-style))
 
-	(defun alert-w32-notification-notify (info)
-	  "Show the alert defined by INFO with `w32-notification-notify'."
-	  (let ((id (w32-notification-notify :title (plist-get info :title)
-					     :body  (plist-get info :message)
-					     :icon (plist-get info :icon)
-					     :level (cdr (assq (plist-get info :severity)
-							       alert-w32-notification-priorities)))))
-	    (run-with-timer 8 nil #'w32-notification-close id))
-	  ;; (when id
-	  ;; (puthash id id alert-notifications-ids)))
-	  (alert-message-notify info))
+(message "alert is defined: %s" (fboundp 'alert-define-style))
 
-	(defun alert-w32-notification-remove (info)
-	  "Remove the `w32-notification-notify' message based on INFO :id."
-	  (message "Removing")
-	  (let ((id (and (plist-get info :id)
-			 (gethash (plist-get info :id) alert-notifications-ids))))
-	    (when id
-	      (w32-notification-close id)
-	      (remhash (plist-get info :id) alert-notifications-ids))))
+(pcase system-type
+  ('windows-nt
+   ;; custom alert style for Windows
+   (defcustom alert-w32-notification-priorities
+     '((urgent   . error)
+       (high     . warning)
+       (moderate . warning)
+       (normal   . info)
+       (low      . info)
+       (trivial  . info))
+     "A mapping of alert severities onto w32-notification priority values."
+     :type '(alist :key-type symbol :value-type symbol)
+     :group 'alert)
 
-	(alert-define-style 'w32-notification :title "Notify using w32-notification"
-			    :notifier #'alert-w32-notification-notify)
-	;; :remover #'alert-w32-notification-remove)
+   (defun alert-w32-notification-notify (info)
+     "Show the alert defined by INFO with `w32-notification-notify'."
+     (let ((id (w32-notification-notify :title (plist-get info :title)
+					:body  (plist-get info :message)
+					:icon (plist-get info :icon)
+					:level (cdr (assq (plist-get info :severity)
+							  alert-w32-notification-priorities)))))
+       (run-with-timer 8 nil #'w32-notification-close id))
+     ;; (when id
+     ;; (puthash id id alert-notifications-ids)))
+     (alert-message-notify info))
 
-	(setq alert-default-style 'w32-notification)))
+   (defun alert-w32-notification-remove (info)
+     "Remove the `w32-notification-notify' message based on INFO :id."
+     (message "Removing")
+     (let ((id (and (plist-get info :id)
+		    (gethash (plist-get info :id) alert-notifications-ids))))
+       (when id
+	 (w32-notification-close id)
+	 (remhash (plist-get info :id) alert-notifications-ids))))
 
-(setq alert-default-style 'notifications)
+   (alert-define-style 'w32-notification :title "Notify using w32-notification"
+		       :notifier #'alert-w32-notification-notify)
+   ;; :remover #'alert-w32-notification-remove)
+
+   (setq alert-default-style 'w32-notification))
+  ('gnu/linux
+   (setq alert-default-style 'notifications)))
 
 ;; org latex export to koma script
 (with-eval-after-load "ox-latex"
@@ -781,6 +785,16 @@ the first directory in `bibtex-completion-library-path'."
 
 ))
 
+;;; markdown
+(use-package gh-md)
+(use-package markdown-mode
+  :config
+  ;; From spacemacs:
+  ;; Make markdown-mode behave a bit more like org w.r.t. code blocks i.e.
+  ;; use proper syntax highlighting
+  (setq markdown-fontify-code-blocks-natively t))
+(use-package vmd-mode)
+
 ;;; html
 ;;
 (use-package sgml-mode
@@ -840,6 +854,9 @@ the first directory in `bibtex-completion-library-path'."
 ;; Automatically highlight trailing whitespace
 (add-hook 'prog-mode-hook
 	  (function (lambda () (setq show-trailing-whitespace t))))
+(add-hook 'latex-mode-hook
+	  (function (lambda () (setq show-trailing-whitespace t))))
+
 ;; Show trailing empty lines
 (setq-default indicate-empty-lines t)
 
@@ -853,7 +870,7 @@ the first directory in `bibtex-completion-library-path'."
 
 ;; Display time in the modeline, in 24-hour format
 (setq-default display-time-24hr-format t)
-(display-time-mode)
+(display-time-mode 1)
 
 ;;; helm
 (use-package helm
@@ -891,7 +908,11 @@ the first directory in `bibtex-completion-library-path'."
   :config
   (setq ivy-use-virtual-buffers t)
   (setq enable-recursive-minibuffers t)
-  (setq ivy-height 15))
+  (setq ivy-height 15)
+  :custom
+  (ivy-preferred-re-builders '((ivy--regex-ignore-order . "order")
+			       (ivy--regex-plus . "ivy")
+			       (ivy--regex-fuzzy . "fuzzy"))))
 
 ;;;; counsel
 (use-package counsel
@@ -2499,13 +2520,15 @@ Windows format."
   :ensure nil)
 
 (use-package evil
-;; Tutorial: how to use toggle-input-method in evil-mode. You don't have to do
-;; anything! Insert mode of evil will automatically take the input method that
-;; was set in Emacs mode. So as long as you have input method set to
-;; slovak-qwerty in evil insert mode, make sure that input method is toggled in
+  ;; Tutorial: how to use toggle-input-method in evil-mode. You don't have to do
+  ;; anything! Insert mode of evil will automatically take the input method that
+  ;; was set in Emacs mode. So as long as you have input method set to
+  ;; slovak-qwerty in evil insert mode, make sure that input method is toggled in
   ;; Emacs mode and you don't have to add hook for it.
   :config
-  (evil-set-initial-state 'calendar-mode 'emacs))
+  (evil-set-initial-state 'calendar-mode 'emacs)
+  (setq evil-default-state 'normal
+	evil-symbol-word-search t))
 
 (use-package evil-org
   :ensure t
@@ -3132,14 +3155,18 @@ Windows format."
        `(helm-grep-lineno            ((,c :foreground ,fg-alt)))
        `(helm-grep-finish            ((,c :foreground ,cyan-cooler)))
        `(helm-locate-finish          ((,c :foreground ,green)))
+       `(helm-separator              ((,c :foreground ,red-warmer)))
+       `(helm-candidate-number       ((,c :background ,bg-blue-intense :foreground ,fg-main)))
+       `(helm-lisp-show-completion   ((,c :background ,bg-sage)))
        `(org-agenda-date-today       ((,c :inherit org-agenda-date :background ,bg-blue-nuanced :underline nil)))
+       `(holiday ((,c :background ,bg-magenta-nuanced :foreground ,date-holiday)))
        )))
 
   ;; Hook doesn't work. Don't know why. Calling it explicitly after loading the
   ;; theme four lines below.
   ;;
   (add-hook 'modus-themes-after-load-theme-hook #'rod-modus-themes-custom-faces)
-  (load-theme 'modus-operandi :no-confim)
+  (load-theme 'modus-vivendi :no-confim)
   (rod-modus-themes-custom-faces)
   )
 
