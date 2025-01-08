@@ -1303,36 +1303,48 @@ If I let Windows handle DPI everything looks blurry."
 	(holiday-fixed 12 24 "Štedrý deň")
 	(holiday-fixed 12 26 "Druhý sviatok vianočný")))
 
+(use-package astro-ts-mode)
+
 ;; inspired by https://github.com/xiaoxinghu/dotfiles/blob/master/emacs/.emacs.d/modules/treesitter.el
 (use-package treesit
   :ensure nil ;; internal package
   :commands (treesit-install-language-grammar)
   :init
   (setq treesit-language-source-alist
-    '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
-       (c . ("https://github.com/tree-sitter/tree-sitter-c"))
-       (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
-       (css . ("https://github.com/tree-sitter/tree-sitter-css"))
-       (go . ("https://github.com/tree-sitter/tree-sitter-go"))
-       (html . ("https://github.com/tree-sitter/tree-sitter-html"))
-       (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
-       (json . ("https://github.com/tree-sitter/tree-sitter-json"))
-       (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
-       (make . ("https://github.com/alemuller/tree-sitter-make"))
-       ;; (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
-       (python . ("https://github.com/tree-sitter/tree-sitter-python"))
-       ;; (php . ("https://github.com/tree-sitter/tree-sitter-php"))
-       (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
-       (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
-       (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
-       (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
-       (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
-       (astro . ("https://github.com/virchau13/tree-sitter-astro"))
-       ;; (zig . ("https://github.com/GrayJack/tree-sitter-zig"))
-       (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
-       ))
+	'((astro . ("https://github.com/virchau13/tree-sitter-astro"))
+	  (bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+	  (c . ("https://github.com/tree-sitter/tree-sitter-c"))
+	  (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
+	  (css . ("https://github.com/tree-sitter/tree-sitter-css"))
+	  (go . ("https://github.com/tree-sitter/tree-sitter-go"))
+	  (html . ("https://github.com/tree-sitter/tree-sitter-html"))
+	  (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+	  (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+	  (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+	  (make . ("https://github.com/alemuller/tree-sitter-make"))
+	  ;; (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
+	  (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+	  ;; (php . ("https://github.com/tree-sitter/tree-sitter-php"))
+	  (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
+	  (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
+	  (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
+	  (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+	  (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+	  (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
+	  ;; (zig . ("https://github.com/GrayJack/tree-sitter-zig"))
+	  (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
+	  ))
   :config
-  (treesit-major-mode-setup))
+  (treesit-major-mode-setup)
+  ;; (use-package combobulate
+  ;;   :preface
+  ;;   ;; You can customize Combobulate's key prefix here.
+  ;;   ;; Note that you may have to restart Emacs for this to take effect!
+  ;;   (setq combobulate-key-prefix "C-c m"))
+  )
+
+(setq major-mode-remap-alist
+ '((python-mode . python-ts-mode)))
 
 ;;; auctex
 ;(require 'tex-site)			; TODO: Why is this here? This shouldn't
@@ -1448,21 +1460,16 @@ If I let Windows handle DPI everything looks blurry."
       (setq flycheck-python-pylint-executable "c:/python312/python.exe")
       (setq flycheck-python-flake8-executable "c:/python312/python.exe")
       (setq flycheck-python-pycompile-executable "c:/python312/python.exe"))
+
 ;; lsp python
-;;
-;; TODO: Remove
-;; (use-package lsp-pyright
-  ;; :init
-  ;; (setq lsp-pyright-multi-root nil)
-  ;; :hook (python-mode-hook . (lambda ()
-                              ;; (require 'lsp-pyright)
-                              ;; (lsp-deferred))))
 
 (use-package python
-  :mode (("SConstruct\\'" . python-mode) ("SConscript\\'" . python-mode))
-  :hook (python-mode-hook . (lambda ()
-			      (require 'lsp-pylsp)
-			      (lsp))))
+  :mode (("SConstruct\\'" . python-ts-mode) ("SConscript\\'" . python-ts-mode))
+  :hook (python-ts-mode-hook . (lambda ()
+			      ;; (require 'lsp-pylsp)
+			      (lsp)
+			      )))
+(use-package blacken)
 ;; pip install python-lsp-server
 
 ;;; Rust
@@ -2100,6 +2107,17 @@ Windows format."
 	'(".eps" ".bst" ".aux" ".bbl" ".bcf" ".blg" ".fdb_latexmk" ".fls" ".lof" ".lot" ".out" ".pri" ".tox")))
 
 ;; smartparens
+
+;; stolen from spacemacs
+(defun spacemacs/smartparens-pair-newline (id action context)
+  (save-excursion
+    (newline)
+    (indent-according-to-mode)))
+
+(defun spacemacs/smartparens-pair-newline-and-indent (id action context)
+  (spacemacs/smartparens-pair-newline id action context)
+  (indent-according-to-mode))
+
 (use-package smartparens
   :diminish smartparens-mode
   ;; These hooks caused problems (2023-05-03) "smartparens.elc failed to define
@@ -2108,24 +2126,33 @@ Windows format."
   ;; :hook (prog-mode-hook org-mode-hook latex-mode-hook)
   :custom (sp-base-key-bindings 'sp)
   (sp-override-key-bindings '(("C-<right>". nil)
-				   ("C-<left>" . nil)
-				   ("C-S-<backspace>" . nil)
-				   ("C-M-<right>" . sp-forward-sexp)
-				   ("C-M-<left>" . sp-backward-sexp)
-				   ;; https://github.com/Fuco1/smartparens/issues/602#issuecomment-1249061100
-				   ;; ("M-<backspace>" . sp-backward-kill-sexp)
-				   ("M-[ M-[" . sp-backward-slurp-sexp)
-				   ("M-] M-]" . sp-forward-slurp-sexp)
-				   ("M-[ M-]" . sp-backward-barf-sexp)
-				   ("M-] M-[" . sp-forward-barf-sexp)
-				   ("M-] M-p" . sp-unwrap-sexp)
-				   ("M-[ M-p" . sp-rewrap-sexp)))
-  :init
-  (require 'smartparens-config)
+			      ("C-<left>" . nil)
+			      ("C-S-<backspace>" . nil)
+			      ("C-M-<right>" . sp-forward-sexp)
+			      ("C-M-<left>" . sp-backward-sexp)
+			      ;; https://github.com/Fuco1/smartparens/issues/602#issuecomment-1249061100
+			      ;; ("M-<backspace>" . sp-backward-kill-sexp)
+			      ("M-[ M-[" . sp-backward-slurp-sexp)
+			      ("M-] M-]" . sp-forward-slurp-sexp)
+			      ("M-[ M-]" . sp-backward-barf-sexp)
+			      ("M-] M-[" . sp-forward-barf-sexp)
+			      ("M-] M-p" . sp-unwrap-sexp)
+			      ("M-[ M-p" . sp-rewrap-sexp)))
+  ;; :init
+  ;; (require 'smartparens-config)
+  :hook ((prog-mode-hook org-mode-hook) . smartparens-mode)
   :config
-  (smartparens-global-mode 1)
+  (require 'smartparens-config)
+  ;; (smartparens-global-mode 1)
   ;; (sp-use-smartparens-bindings)
   ;; (sp--update-override-key-bindings)
+  ;; don't create a pair with single quote in minibuffer
+  (sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil)
+  (sp-local-pair 'minibuffer-mode "'" nil :actions nil)
+  (sp-pair "{" nil :post-handlers
+           '(:add (spacemacs/smartparens-pair-newline-and-indent "RET")))
+  (sp-pair "[" nil :post-handlers
+           '(:add (spacemacs/smartparens-pair-newline-and-indent "RET")))
   :commands (smartparens-mode show-smartparens-mode))
 
 (use-package yaml-mode)
@@ -2389,6 +2416,39 @@ Windows format."
             ;; (setq lsp-ui-doc-enable nil)
 	    )
   )
+
+;; lsp-booster: download and/or compile exe from https://github.com/blahgeek/emacs-lsp-booster
+
+(defun lsp-booster--advice-json-parse (old-fn &rest args)
+  "Try to parse bytecode instead of json."
+  (or
+   (when (equal (following-char) ?#)
+     (let ((bytecode (read (current-buffer))))
+       (when (byte-code-function-p bytecode)
+         (funcall bytecode))))
+   (apply old-fn args)))
+(advice-add (if (progn (require 'json)
+                       (fboundp 'json-parse-buffer))
+                'json-parse-buffer
+              'json-read)
+            :around
+            #'lsp-booster--advice-json-parse)
+
+(defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+  "Prepend emacs-lsp-booster command to lsp CMD."
+  (let ((orig-result (funcall old-fn cmd test?)))
+    (if (and (not test?)                             ;; for check lsp-server-present?
+             (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+             lsp-use-plists
+             (not (functionp 'json-rpc-connection))  ;; native json-rpc
+             (executable-find "emacs-lsp-booster"))
+        (progn
+          (when-let ((command-from-exec-path (executable-find (car orig-result))))  ;; resolve command from exec-path (in case not found in $PATH)
+            (setcar orig-result command-from-exec-path))
+          (message "Using emacs-lsp-booster for %s!" orig-result)
+          (cons "emacs-lsp-booster" orig-result))
+      orig-result)))
+(advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
 
 (use-package company
   :diminish company-mode
