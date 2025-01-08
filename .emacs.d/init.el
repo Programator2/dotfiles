@@ -2202,27 +2202,29 @@ Windows format."
      gnus-sum-thread-tree-vertical "│"
      gnus-article-browse-delete-temp t
      gnus-treat-strip-trailing-blank-lines 'last
-     ;; gnus-keep-backlog 'nil
      gnus-summary-display-arrow nil ; Don't show that annoying arrow:
      gnus-mime-display-multipart-related-as-mixed t ; Show more MIME-stuff:
      gnus-auto-select-first nil ; Don't get the first article automatically:
      smiley-style 'medium)
     (setq gnus-refer-article-method
 	  '(current
-            (nnregistry)))
-     ;; gnus-keep-backlog '0)
+            (nnregistry)))))
 
-  ;; Check for mail every 10 minutes
-  (gnus-demon-add-handler 'gnus-demon-scan-mail 10 nil)
-  (require 'smtpmail-multi)
-  (require 'gnus-notes-helm)
-  ;; recent mail using gnus-notes
-  (gnus-notes-init)
+;; some inspiration taken from https://github.com/Thaodan/emacs.d/
+;; recent mail using gnus-notes
+(use-package gnus-notes
+  :after gnus
+  :config
+  (gnus-notes-init))
+(use-package gnus-notes-helm
+  :ensure nil
+  :after gnus-notes
+  :config (defalias 'rod-gnus-history 'gnus-notes-helm)
+
   ;; create more memorable command
   (defalias 'rod-recent-mail 'gnus-notes-helm)
-  (defalias 'rod-gnus-recent 'gnus-notes-helm)))
-;; TODO - I have to set so that it doesn't connect when the PC is offline
-;; (gnus-demon-remove-handler 'gnus-demon-scan-mail)
+  (defalias 'rod-gnus-recent 'gnus-notes-helm)
+  (defalias 'rod-gnus-history 'gnus-notes-helm))
 
 (use-package gnus-sum
   :ensure nil
