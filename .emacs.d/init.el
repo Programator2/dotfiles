@@ -1103,6 +1103,7 @@ the first directory in `bibtex-completion-library-path'."
 (global-set-key [f5] 'evil-mode)
 (global-set-key [f6] 'replace-regexp)
 ;; (global-set-key [f7] 'avy-goto-line)	;changed to M-g f
+(global-set-key [f7] 'redraw-display)
 (global-set-key [f8] 'neotree-toggle)
 (global-set-key [f12] 'swiper)
 (global-set-key
