@@ -376,6 +376,8 @@ at the first function to return non-nil.")
   (interactive)
   (org-end-of-subtree))
 
+(use-package engrave-faces)
+
 (use-package org-web-tools)
 
 ;; org-remark
