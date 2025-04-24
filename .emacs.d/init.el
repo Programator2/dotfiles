@@ -1023,6 +1023,9 @@ the first directory in `bibtex-completion-library-path'."
   :config
   (which-key-mode))
 
+(use-package ace-window
+  :bind ("M-o" . ace-window))
+
 ;; Vim-like o
 (defun rod-vim-open-line ()
   "Begin a new line under the current line."
@@ -1097,8 +1100,6 @@ the first directory in `bibtex-completion-library-path'."
 (global-set-key (kbd "C-c f") 'find-file)
 ;; Originally bound to `kill-buffer', but 99.99% used to kill current buffer.
 (global-set-key (kbd "C-x k") 'kill-current-buffer)
-;; ace-window -- for switching windows
-(global-set-key (kbd "M-o") 'ace-window)
 (global-set-key [f5] 'evil-mode)
 (global-set-key [f6] 'replace-regexp)
 ;; (global-set-key [f7] 'avy-goto-line)	;changed to M-g f
