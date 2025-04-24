@@ -1216,7 +1216,7 @@ the first directory in `bibtex-completion-library-path'."
 ;; (set-frame-font "IBM Plex Mono-16" nil t)  ;; quite high
 
 (when (member "Cascadia Code" (font-family-list))
-  (set-frame-font "Cascadia Code-10" nil t))
+  (set-frame-font "Cascadia Code-12" nil t))
 
 ;; Font size adjustment
 ;; From https://www.reddit.com/r/emacs/comments/dpc2aj/comment/f5uasez/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
