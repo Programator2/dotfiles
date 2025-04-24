@@ -1267,7 +1267,7 @@ If I let Windows handle DPI everything looks blurry."
   (mapc #'disable-theme custom-enabled-themes))
 
 ;; set auto fill mode for org-mode
-(setq-default fill-column 80)
+(setq-default fill-column 79)
 (add-hook 'org-mode-hook 'turn-on-auto-fill)
 
 ;; weekday numbers in the calendar
