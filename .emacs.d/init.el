@@ -1495,8 +1495,18 @@ If I let Windows handle DPI everything looks blurry."
 
 ;;; Rust
 
-(use-package cargo)
-(use-package rust-mode)
+(use-package rust-mode
+  :init
+  (setq rust-mode-treesitter-derive t))
+(use-package rustic
+  :defer t
+  :after (rust-mode)
+  :mode ("\\.rs\\'" . rustic-mode)
+  :init
+  (with-eval-after-load 'flycheck
+    (push 'rustic-clippy flycheck-checkers)))
+;; Is cargo needed?
+;; (use-package cargo)
 (use-package toml-mode
   :mode "/\\(Cargo.lock\\|\\.cargo/config\\)\\'")
 (use-package ron-mode
