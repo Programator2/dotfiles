@@ -2817,42 +2817,24 @@ Windows format."
  '(Info-additional-directory-list '("C:\\tools\\cygwin\\usr\\share\\info"))
  '(LaTeX-command "latex -shell-escape")
  '(LaTeX-indent-environment-list
-   '(("verbatim" current-indentation)
-     ("verbatim*" current-indentation)
-     ("filecontents" current-indentation)
-     ("filecontents*" current-indentation)
-     ("tabular" LaTeX-indent-tabular)
-     ("tabular*" LaTeX-indent-tabular)
-     ("array" LaTeX-indent-tabular)
-     ("eqnarray" LaTeX-indent-tabular)
-     ("eqnarray*" LaTeX-indent-tabular)
-     ("align" LaTeX-indent-tabular)
-     ("align*" LaTeX-indent-tabular)
-     ("aligned" LaTeX-indent-tabular)
-     ("alignat" LaTeX-indent-tabular)
-     ("alignat*" LaTeX-indent-tabular)
-     ("alignedat" LaTeX-indent-tabular)
-     ("xalignat" LaTeX-indent-tabular)
-     ("xalignat*" LaTeX-indent-tabular)
-     ("xxalignat" LaTeX-indent-tabular)
-     ("flalign" LaTeX-indent-tabular)
-     ("flalign*" LaTeX-indent-tabular)
-     ("split" LaTeX-indent-tabular)
-     ("matrix" LaTeX-indent-tabular)
-     ("pmatrix" LaTeX-indent-tabular)
-     ("bmatrix" LaTeX-indent-tabular)
-     ("Bmatrix" LaTeX-indent-tabular)
-     ("vmatrix" LaTeX-indent-tabular)
-     ("Vmatrix" LaTeX-indent-tabular)
-     ("smallmatrix" LaTeX-indent-tabular)
-     ("cases" LaTeX-indent-tabular)
-     ("matrix*" LaTeX-indent-tabular)
-     ("pmatrix*" LaTeX-indent-tabular)
-     ("bmatrix*" LaTeX-indent-tabular)
-     ("Bmatrix*" LaTeX-indent-tabular)
-     ("vmatrix*" LaTeX-indent-tabular)
-     ("Vmatrix*" LaTeX-indent-tabular)
-     ("smallmatrix*" LaTeX-indent-tabular)
+   '(("verbatim" current-indentation) ("verbatim*" current-indentation)
+     ("filecontents" current-indentation) ("filecontents*" current-indentation)
+     ("tabular" LaTeX-indent-tabular) ("tabular*" LaTeX-indent-tabular)
+     ("array" LaTeX-indent-tabular) ("eqnarray" LaTeX-indent-tabular)
+     ("eqnarray*" LaTeX-indent-tabular) ("align" LaTeX-indent-tabular)
+     ("align*" LaTeX-indent-tabular) ("aligned" LaTeX-indent-tabular)
+     ("alignat" LaTeX-indent-tabular) ("alignat*" LaTeX-indent-tabular)
+     ("alignedat" LaTeX-indent-tabular) ("xalignat" LaTeX-indent-tabular)
+     ("xalignat*" LaTeX-indent-tabular) ("xxalignat" LaTeX-indent-tabular)
+     ("flalign" LaTeX-indent-tabular) ("flalign*" LaTeX-indent-tabular)
+     ("split" LaTeX-indent-tabular) ("matrix" LaTeX-indent-tabular)
+     ("pmatrix" LaTeX-indent-tabular) ("bmatrix" LaTeX-indent-tabular)
+     ("Bmatrix" LaTeX-indent-tabular) ("vmatrix" LaTeX-indent-tabular)
+     ("Vmatrix" LaTeX-indent-tabular) ("smallmatrix" LaTeX-indent-tabular)
+     ("cases" LaTeX-indent-tabular) ("matrix*" LaTeX-indent-tabular)
+     ("pmatrix*" LaTeX-indent-tabular) ("bmatrix*" LaTeX-indent-tabular)
+     ("Bmatrix*" LaTeX-indent-tabular) ("vmatrix*" LaTeX-indent-tabular)
+     ("Vmatrix*" LaTeX-indent-tabular) ("smallmatrix*" LaTeX-indent-tabular)
      ("psmallmatrix" LaTeX-indent-tabular)
      ("psmallmatrix*" LaTeX-indent-tabular)
      ("bsmallmatrix" LaTeX-indent-tabular)
@@ -2860,48 +2842,29 @@ Windows format."
      ("vsmallmatrix" LaTeX-indent-tabular)
      ("vsmallmatrix*" LaTeX-indent-tabular)
      ("Vsmallmatrix" LaTeX-indent-tabular)
-     ("Vsmallmatrix*" LaTeX-indent-tabular)
-     ("dcases" LaTeX-indent-tabular)
-     ("dcases*" LaTeX-indent-tabular)
-     ("rcases" LaTeX-indent-tabular)
-     ("rcases*" LaTeX-indent-tabular)
-     ("drcases" LaTeX-indent-tabular)
-     ("drcases*" LaTeX-indent-tabular)
-     ("cases*" LaTeX-indent-tabular)
-     ("displaymath")
-     ("equation")
-     ("picture")
-     ("tabbing")
-     ("gather")
-     ("gather*")
-     ("gathered")
-     ("equation*")
-     ("multline")
-     ("multline*")
-     ("macrocode")
-     ("macrocode*")
-     ("algorithmic" current-indentation)) nil nil "Package algorithms is not supported, therefore I had to turn off indentation for algorithmic.")
+     ("Vsmallmatrix*" LaTeX-indent-tabular) ("dcases" LaTeX-indent-tabular)
+     ("dcases*" LaTeX-indent-tabular) ("rcases" LaTeX-indent-tabular)
+     ("rcases*" LaTeX-indent-tabular) ("drcases" LaTeX-indent-tabular)
+     ("drcases*" LaTeX-indent-tabular) ("cases*" LaTeX-indent-tabular)
+     ("displaymath") ("equation") ("picture") ("tabbing") ("gather")
+     ("gather*") ("gathered") ("equation*") ("multline") ("multline*")
+     ("macrocode") ("macrocode*") ("algorithmic" current-indentation)) nil nil "Package algorithms is not supported, therefore I had to turn off indentation for algorithmic.")
  '(TeX-electric-math '("\\(" . "\\)"))
  '(TeX-source-correlate-mode t)
  '(TeX-view-program-selection
-   '(((output-dvi style-pstricks)
-      "dvips and start")
-     (output-dvi "Yap")
-     (output-pdf "PDF Tools")
-     (output-html "start")))
+   '(((output-dvi style-pstricks) "dvips and start") (output-dvi "Yap")
+     (output-pdf "PDF Tools") (output-html "start")))
  '(all-the-icons-dired-monochrome nil)
  '(ansi-term-color-vector
-   [unspecified "#fafafa" "#ca1243" "#50a14f" "#c18401" "#4078f2" "#a626a4" "#4078f2" "#383a42"] t)
+   [unspecified "#fafafa" "#ca1243" "#50a14f" "#c18401" "#4078f2" "#a626a4"
+		"#4078f2" "#383a42"] t)
  '(bbdb-message-all-addresses t)
  '(bbdb-mua-interactive-action '(create . query))
  '(bbdb-mua-pop-up nil)
  '(blacken-line-length 'fill)
  '(blacken-skip-string-normalization t)
  '(calendar-time-display-form
-   '(24-hours ":" minutes
-	      (if time-zone " (")
-	      time-zone
-	      (if time-zone ")")))
+   '(24-hours ":" minutes (if time-zone " (") time-zone (if time-zone ")")))
  '(calendar-view-holidays-initially-flag t)
  '(calibredb-ids-width 10)
  '(column-number-mode t)
@@ -2939,12 +2902,14 @@ Windows format."
  '(httpd-port 8081)
  '(ignored-local-variable-values
    '((eval font-lock-add-keywords nil
-	   `((,(concat "("
-		       (regexp-opt
-			'("sp-do-move-op" "sp-do-move-cl" "sp-do-put-op" "sp-do-put-cl" "sp-do-del-op" "sp-do-del-cl")
-			t)
-		       "\\_>")
-	      1 'font-lock-variable-name-face)))))
+	   `
+	   ((,(concat "("
+		      (regexp-opt
+		       '("sp-do-move-op" "sp-do-move-cl" "sp-do-put-op"
+			 "sp-do-put-cl" "sp-do-del-op" "sp-do-del-cl")
+		       t)
+		      "\\_>")
+	     1 'font-lock-variable-name-face)))))
  '(image-dired-cmd-create-thumbnail-options
    '("convert" "-size" "%wx%h" "%f[0]" "-resize" "%wx%h>" "-strip" "jpeg:%t"))
  '(image-dired-cmd-create-thumbnail-program "magick")
@@ -2964,16 +2929,19 @@ Windows format."
  '(magit-copy-revision-abbreviated t)
  '(markdown-max-image-size '(700))
  '(mode-line-format
-   '("%e" mode-line-front-space mode-line-mule-info mode-line-client mode-line-modified mode-line-remote mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position evil-mode-line-tag
-     (vc-mode vc-mode)
-     "  " mode-line-modes mode-line-misc-info mode-line-end-spaces))
+   '("%e" mode-line-front-space mode-line-mule-info mode-line-client
+     mode-line-modified mode-line-remote mode-line-frame-identification
+     mode-line-buffer-identification "   " mode-line-position
+     evil-mode-line-tag (vc-mode vc-mode) "  " mode-line-modes
+     mode-line-misc-info mode-line-end-spaces))
  '(native-comp-async-jobs-number 2)
- '(neo-smart-open t)
+ '(neo-smart-open t t)
  '(org-M-RET-may-split-line '((default)))
  '(org-agenda-compact-blocks nil)
  '(org-agenda-time-grid
    '((daily weekly today require-timed remove-match)
-     (600 700 800 830 900 930 1000 1030 1100 1130 1200 1230 1300 1330 1400 1430 1500 1530 1600 1630 1700 1730 1800 1830 1900 2000 2100 2200 2300)
+     (600 700 800 830 900 930 1000 1030 1100 1130 1200 1230 1300 1330 1400 1430
+	  1500 1530 1600 1630 1700 1730 1800 1830 1900 2000 2100 2200 2300)
      "......" "----------------"))
  '(org-babel-python-command "py")
  '(org-capture-use-agenda-date t)
@@ -2982,15 +2950,13 @@ Windows format."
  '(org-expiry-inactive-timestamps t)
  '(org-export-in-background nil)
  '(org-file-apps
-   '((auto-mode . emacs)
-     (directory . emacs)
-     ("\\.mm\\'" . default)
-     ("\\.x?html?\\'" . default)
-     ("\\.pdf\\'" . emacs)))
+   '((auto-mode . emacs) (directory . emacs) ("\\.mm\\'" . default)
+     ("\\.x?html?\\'" . default) ("\\.pdf\\'" . emacs)))
  '(org-fontify-done-headline nil)
  '(org-fontify-todo-headline nil)
  '(org-format-latex-options
-   '(:foreground default :background default :scale 2.0 :html-foreground "Black" :html-background "Transparent" :html-scale 1.0 :matchers
+   '(:foreground default :background default :scale 2.0 :html-foreground "Black"
+		 :html-background "Transparent" :html-scale 1.0 :matchers
 		 ("begin" "$1" "$" "$$" "\\(" "\\[")))
  '(org-html-doctype "html5")
  '(org-html-head-include-scripts t)
@@ -3001,7 +2967,9 @@ Windows format."
  '(org-latex-engraved-preamble
    "\\usepackage{fvextra}\12\12[FVEXTRA-SETUP]\12\12% Make line numbers smaller and grey.\12\\renewcommand\\theFancyVerbLine{\\footnotesize\\color{black!40!white}\\arabic{FancyVerbLine}}\12\12\\usepackage{xcolor}\12\12% In case engrave-faces-latex-gen-preamble has not been run.\12\\providecolor{EfD}{HTML}{f7f7f7}\12\\providecolor{EFD}{HTML}{28292e}\12\12% Define a Code environment to prettily wrap the fontified code.\12\\usepackage[breakable,xparse]{tcolorbox}\12\\DeclareTColorBox[]{Code}{o}%\12{colback=EfD!98!EFD, colframe=EfD!95!EFD,\12  fontupper=\\tiny\\setlength{\\fboxsep}{0pt},\12  colupper=EFD,\12  IfNoValueTF={#1}%\12  {boxsep=2pt, arc=2.5pt, outer arc=2.5pt,\12    boxrule=0.5pt, left=2pt}%\12  {boxsep=2.5pt, arc=0pt, outer arc=0pt,\12    boxrule=0pt, leftrule=1.5pt, left=0.5pt},\12  right=2pt, top=1pt, bottom=0.5pt,\12  breakable}\12\12[LISTINGS-SETUP]")
  '(org-latex-pdf-process
-   '("%latex -interaction nonstopmode -shell-escape -output-directory %o %f" "%latex -interaction nonstopmode -shell-escape -output-directory %o %f" "%latex -interaction nonstopmode -shell-escape -output-directory %o %f"))
+   '("%latex -interaction nonstopmode -shell-escape -output-directory %o %f"
+     "%latex -interaction nonstopmode -shell-escape -output-directory %o %f"
+     "%latex -interaction nonstopmode -shell-escape -output-directory %o %f"))
  '(org-latex-src-block-backend 'engraved)
  '(org-latex-tables-booktabs t)
  '(org-log-into-drawer t)
@@ -3013,35 +2981,40 @@ Windows format."
  '(org-refile-use-outline-path t)
  '(org-roam-file-exclude-regexp "\\.gpg$")
  '(org-src-lang-modes
-   '(("C" . c)
-     ("C++" . c++)
-     ("asymptote" . asy)
-     ("bash" . sh)
-     ("beamer" . latex)
-     ("calc" . fundamental)
-     ("cpp" . c++)
-     ("conf" . conf)
-     ("ditaa" . artist)
-     ("desktop" . conf-desktop)
-     ("dot" . fundamental)
-     ("elisp" . emacs-lisp)
-     ("ocaml" . tuareg)
-     ("screen" . shell-script)
-     ("shell" . sh)
-     ("sqlite" . sql)
-     ("toml" . conf-toml)))
+   '(("C" . c) ("C++" . c++) ("asymptote" . asy) ("bash" . sh) ("beamer" . latex)
+     ("calc" . fundamental) ("cpp" . c++) ("conf" . conf) ("ditaa" . artist)
+     ("desktop" . conf-desktop) ("dot" . fundamental) ("elisp" . emacs-lisp)
+     ("ocaml" . tuareg) ("screen" . shell-script) ("shell" . sh)
+     ("sqlite" . sql) ("toml" . conf-toml)))
  '(org-src-preserve-indentation t)
  '(org-stuck-projects
-   '("+project/-MAYBE-DONE"
-     ("TODO" "NEXT" "NEXTACTION")
-     nil ""))
+   '("+project/-MAYBE-DONE" ("TODO" "NEXT" "NEXTACTION") nil ""))
  '(org-tags-exclude-from-inheritance '("crypt" "project"))
  '(org-trello-current-prefix-keybinding "C-c o")
  '(org-use-speed-commands t)
  '(org-use-sub-superscripts '{})
  '(package-menu-async nil)
  '(package-selected-packages
-   '(org-roam-ui lua-mode treesit rustic corfu astro-ts-mode combobulate web-mode org-tidy valign org-modern vmd-mode gh-md dockerfile-mode visual-fill-column ivy-hydra ahk-mode engrave-faces nerd-icons-dired good-scroll flycheck-rust ron-mode toml-mode rust-mode cargo emacs-gc-stats insert-shebang nasm-mode notmuch x86-lookup window-purpose general typescript-mode yaml-mode rg magit ein quickrun name-this-color evil-org helpful dired-narrow helm-pydoc pydoc biblio bui queue cfrs websocket edit-server helm-descbinds keyfreq consult-dir mixed-pitch ef-themes consult-spotify ivy-spotify espotify matlab-mode evil-tex org-panel org-mouse org-protocol tex benchmark-init csv-mode company-auctex company-math company-reftex magic-latex-buffer typo math-symbol-lists maven-test-mode pcsv org-remark dirvish org-web-tools slime-company elquery rebecca-theme gnus-notes gnus-notes-helm org-mru-clock evil-smartparens emacsql-libsqlite3 svg-clock blacken imenu-list calibredb deft msvc fd-dired auctex-latexmk evil-numbers saveplace-pdf-view org-pdftools helm-bbdb sphinx-doc yasnippet expand-region helm-org js2-mode nodejs-repl git-package esup chronos dianyou dired-recent helm-org-rifle darkroom python-docstring smtpmail-multi elfeed evil-surround ggtags diminish disaster pos-tip yapfify evil-mc ivy-posframe counsel-org-clock auto-indent-mode aggressive-indent helm-lsp drag-stuff projectile-git-autofetch go-mode org-pomodoro calfw-org calfw-cal calfw spray hide-mode-line impatient-mode ace-jump-mode all-the-icons-gnus all-the-icons-dired rainbow-mode flycheck-mypy vue-mode web-beautify interleave htmlize ace-window poly-markdown highlight-indent-guides neotree auctex org-present))
+   '(all-the-icons astro-ts-mode auctex-latexmk blacken calfw calfw-org calibredb
+		   cargo chronos company counsel deft diminish dired-recent
+		   doom-themes drag-stuff edit-server ein elfeed ellama
+		   engrave-faces esup evil-numbers evil-org expand-region
+		   flycheck-rust fsharp-mode general gh-md gnus-notes go-mode
+		   good-scroll gptel helm-bibtex helm-lsp helm-org
+		   helm-org-rifle insert-shebang keyfreq lsp-java lsp-latex
+		   lsp-ui lua-mode magic-latex-buffer magit modus-themes
+		   name-this-color nasm-mode neotree nerd-icons-dired notmuch
+		   org-contrib org-journal org-mime org-modern org-mru-clock
+		   org-pdftools org-pomodoro org-present org-ref org-remark
+		   org-roam-timestamps org-roam-ui org-tidy org-trello
+		   org-web-tools php-mode pip-requirements pipenv pippel
+		   pkg-info popup projectile py-isort pydoc pyenv-mode
+		   python-docstring quickrun rg ron-mode rust-mode rustic
+		   saveplace-pdf-view slime smartparens smtpmail-multi
+		   solaire-mode sphinx-doc svelte-mode toml-mode
+		   typescript-mode use-package valign vmd-mode vue-mode
+		   which-key window-purpose x86-lookup yaml-mode
+		   yasnippet-snippets))
  '(pdf-view-continuous t)
  '(pdf-view-selection-style 'glyph)
  '(projectile-indexing-method 'alien)
@@ -3052,26 +3025,14 @@ Windows format."
  '(request-backend 'url-retrieve)
  '(ring-bell-function 'ignore)
  '(safe-local-variable-values
-   '((TeX-master . t)
-     (etags-regen-ignores "test/manual/etags/")
-     (etags-regen-regexp-alist
-      (("c" "objc")
-       "/[ \11]*DEFVAR_[A-Z_ \11(]+\"\\([^\"]+\\)\"/\\1/" "/[ \11]*DEFVAR_[A-Z_ \11(]+\"[^\"]+\",[ \11]\\([A-Za-z0-9_]+\\)/\\1/"))
-     (vc-prepare-patches-separately)
-     (diff-add-log-use-relative-names . t)
+   '((vc-prepare-patches-separately) (diff-add-log-use-relative-names . t)
      (vc-git-annotate-switches . "-w")))
  '(save-interprogram-paste-before-kill t)
  '(search-default-mode 'char-fold-to-regexp)
  '(search-whitespace-regexp "[ \11\15\12]+")
  '(sgml-tag-alist
-   '(("!["
-      ("ignore" t)
-      ("include" t))
-     ("!attlist")
-     ("!doctype")
-     ("!element")
-     ("!entity")
-     ("code")))
+   '(("![" ("ignore" t) ("include" t)) ("!attlist") ("!doctype") ("!element")
+     ("!entity") ("code")))
  '(smtpmail-debug-verb t)
  '(solaire-mode-auto-swap-bg nil)
  '(spacemacs-theme-comment-italic t)
@@ -3080,9 +3041,7 @@ Windows format."
  '(spacemacs-theme-org-highlight t)
  '(tags-revert-without-query t)
  '(tooltip-frame-parameters
-   '((name . "tooltip")
-     (internal-border-width . 4)
-     (border-width . 1)
+   '((name . "tooltip") (internal-border-width . 4) (border-width . 1)
      (no-special-glyphs . t)))
  '(visible-bell t)
  '(warning-suppress-types '((comp)))
