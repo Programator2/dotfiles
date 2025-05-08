@@ -1477,6 +1477,15 @@ If I let Windows handle DPI everything looks blurry."
 			      (lsp)
 			      )))
 (use-package blacken)
+(use-package pyvenv)
+(use-package pip-requirements)
+(use-package pippel)
+(use-package pipenv)
+(use-package py-isort)
+(use-package pydoc)
+(use-package pyenv-mode)
+(use-package sphinx-doc)
+(use-package python-docstring)
 ;; pip install python-lsp-server
 
 ;;; Rust
