@@ -1328,7 +1328,7 @@ If I let Windows handle DPI everything looks blurry."
 	  (make . ("https://github.com/alemuller/tree-sitter-make"))
 	  ;; (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
 	  (python . ("https://github.com/tree-sitter/tree-sitter-python"))
-	  ;; (php . ("https://github.com/tree-sitter/tree-sitter-php"))
+	  (php . ("https://github.com/tree-sitter/tree-sitter-php" "master" "php/src"))
 	  (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
 	  (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
 	  (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
@@ -1349,6 +1349,9 @@ If I let Windows handle DPI everything looks blurry."
 
 (setq major-mode-remap-alist
  '((python-mode . python-ts-mode)))
+
+(use-package php-mode
+  :mode ("\\.php\\'" . php-mode))
 
 ;;; auctex
 ;(require 'tex-site)			; TODO: Why is this here? This shouldn't
@@ -2938,7 +2941,7 @@ Windows format."
  '(image-dired-cmd-create-thumbnail-program "magick")
  '(image-dired-thumb-relief 0)
  '(image-use-external-converter t)
- '(insert-shebang-ignore-extensions '("txt" "org" "el" "py"))
+ '(insert-shebang-ignore-extensions '("txt" "org" "el" "py" "php"))
  '(ivy-height 20)
  '(ivy-hooks-alist '((t . toggle-input-method)))
  '(kill-do-not-save-duplicates t)
