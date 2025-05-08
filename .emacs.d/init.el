@@ -2099,6 +2099,23 @@ Windows format."
   :ensure nil)				;isn't tested with use package
 
 ;; NeoTree
+(use-package neotree
+  :defer t
+  :commands neo-global--window-exists-p
+  :init
+  (setq neo-window-width 32
+        neo-create-file-auto-open t
+        neo-banner-message "Press ? for neotree help"
+        neo-show-updir-line nil
+        neo-mode-line-type 'neotree
+        neo-smart-open t
+        neo-dont-be-alone t
+        neo-persist-show nil
+        neo-show-hidden-files t
+        neo-auto-indent-point t
+        neo-modern-sidebar t
+        neo-vc-integration nil))
+
 ;; (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 
 (use-package saveplace-pdf-view)
