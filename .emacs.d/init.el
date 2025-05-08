@@ -3121,6 +3121,8 @@ Windows format."
  '(helm-source-header ((((class color) (min-colors 256)) :background "#303030" :foreground "#b6a0ff" :weight bold)))
  '(helm-visible-mark ((((class color) (min-colors 256)) :inherit (bold highlight))))
  '(holiday ((((class color) (min-colors 256)) :background "#f8e6f5" :foreground "#8f0075")))
+ '(lsp-ui-doc-background ((((class color) (min-colors 256)) :background "#ffffff")))
+ '(markdown-code-face ((((class color) (min-colors 256)) :background "#ffffff")))
  '(mode-line ((((class color) (min-colors 256)) :box (:line-width 3 :color "#ccdfff"))))
  '(mode-line-inactive ((((class color) (min-colors 256)) :box (:line-width 3 :color "#e6e6e6"))))
  '(org-agenda-date-today ((((class color) (min-colors 256)) :inherit org-agenda-date :background "#ecedff" :underline nil)))
@@ -3281,6 +3283,9 @@ Windows format."
        `(helm-lisp-show-completion   ((,c :background ,bg-sage)))
        `(org-agenda-date-today       ((,c :inherit org-agenda-date :background ,bg-blue-nuanced :underline nil)))
        `(holiday ((,c :background ,bg-magenta-nuanced :foreground ,date-holiday)))
+       `(lsp-ui-doc-background ((,c :background ,bg-main)))
+       ;; Because lsp-ui-doc draws it badly
+       `(markdown-code-face ((,c :background ,bg-main)))
        )))
 
   ;; Hook doesn't work. Don't know why. Calling it explicitly after loading the
