@@ -2924,6 +2924,8 @@ Windows format."
  '(epg-debug t)
  '(epg-passphrase-coding-system 'utf-8)
  '(eshell-cmpl-use-paring nil)
+ '(evil-default-state 'emacs)
+ '(evil-symbol-word-search t)
  '(ffap-file-name-with-spaces t)
  '(file-name-at-point-functions nil nil nil "Slows down helm, all fhook functions disabled 2023-05-02")
  '(global-hl-line-sticky-flag t)
