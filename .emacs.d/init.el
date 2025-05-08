@@ -1928,7 +1928,7 @@ Version 2017-01-11"
 (use-package avy
   :bind
   (("C-:"     . avy-goto-char)
-   ("C-`"     . avy-goto-char-2)
+   ("C-`"     . avy-goto-char-timer)
    ("M-g l"   . avy-goto-line)
    ("M-g M-l" . avy-goto-line)
    ("M-g w"   . avy-goto-word-1)
@@ -2037,11 +2037,12 @@ Windows format."
    "fl" 'vimish-fold-avy
    "fD" 'vimish-fold-delete-all
 
-   "c"  '(:ignore t :which-key "multicurse")
+   "c"  '(:ignore t :which-key "multicurse+various")
    "c." 'mc/mark-next-like-this
    "c," 'mc/mark-previous-like-this
    "ca" 'mc/mark-all-like-this
    "ce" 'mc/edit-lines
+   "cc" 'rod-copy-cwd-path
 
    ;; Buffer operations
    "b"   '(:ignore t :which-key "buffer")
@@ -2064,8 +2065,10 @@ Windows format."
   "o" '(:ignore t :which-key "org")
   "og" 'org-clock-goto
   "oc" 'org-expiry-insert-created
+  "oo" 'org-clock-out
   "op" 'org-pomodoro
-  "o2" 'rod-goto-calendar))
+  "o2" 'rod-goto-calendar
+  "ol" 'org-toggle-link-display))
 
 ;;; aliases
 ;;
