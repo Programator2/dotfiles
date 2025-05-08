@@ -754,6 +754,11 @@ the first directory in `bibtex-completion-library-path'."
 
 (use-package valign)
 
+(defun rod-goto-calendar ()
+  "Go to the calendar heading of my GTD system."
+  (interactive)
+  (org-id-goto "a71c5010-9534-465f-948b-ad592c7fdd99"))
+
 ;;; end org-mode
 
 (when (eq system-type 'windows-nt)
@@ -2049,7 +2054,8 @@ Windows format."
   "o" '(:ignore t :which-key "org")
   "og" 'org-clock-goto
   "oc" 'org-expiry-insert-created
-  "op" 'org-pomodoro))
+  "op" 'org-pomodoro
+  "o2" 'rod-goto-calendar))
 
 ;;; aliases
 ;;
