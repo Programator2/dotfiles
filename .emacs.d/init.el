@@ -2070,6 +2070,8 @@ Windows format."
   "o2" 'rod-goto-calendar
   "ol" 'org-toggle-link-display))
 
+(use-package window-purpose)
+
 ;;; aliases
 ;;
 ;; Find, visit. Emacs is consistent, but sometimes it can use a bit more
