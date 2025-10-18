@@ -53,6 +53,11 @@
 ;; this allows introspection of hooks, you have to use the full name
 (setq use-package-hook-name-suffix nil)
 
+;; Well, in 2025-05 I noticed that my packages were not updated from 2024-04
+;; due to old key. I saw the error but brushed it off since it didn't seem
+;; serious. This package should automatically update the keys.
+(use-package gnu-elpa-keyring-update)
+
 ;; (use-package benchmark-init
 ;;   :ensure t
 ;;   :init
@@ -134,6 +139,12 @@ folder."
   (file-name-concat rod-userprofile-directory path))
 
 (load-file (concat user-emacs-directory "init-private.el"))
+
+;; add site-lisp for local and personal packages
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp"))
+
+(use-package diminish)
+
 ;;; org-mode
 
 ;; taken from doom, lazy loading for org-protocol
@@ -169,13 +180,8 @@ folder."
 ;;   (after! org-protocol
 ;;     (ad-disable-advice 'server-visit-files 'before 'org-protocol-detect-protocol-server)))
 
-;; add site-lisp for local and personal packages
-(add-to-list 'load-path (concat user-emacs-directory "site-lisp"))
-
-(use-package diminish)
-
 (use-package org
-  :ensure org-contrib
+  :ensure t
   :commands org-clock-in
   ;; :preface
   ;; (add-hook 'org-load-hook
@@ -218,8 +224,6 @@ folder."
 			       "System/gtd.org")
 			     "Inbox")
 	   "* TODO %?\nCreated: %U\n%i\n%a")
-	  ;; ("i" "Inbox" entry (file+headline "c:/Users/Roderik/Documents/System/notes.org" "Incoming")
-	  ;; "* TODO %?\n  %i\n  %a\n  Created: %U")
 	  ("j" "Journal" entry (file+olp+datetree "~/org/journal.org")
 	   "* %?\nEntered on %U\n%i\n%a")
 	  ("k" "Knowledgebase" entry (file ,(rod-concat-documents-dir
@@ -244,6 +248,7 @@ folder."
 				   ;; ("newfloat" "minted" nil)
 				   ))
   ;; (setq org-latex-listings 'minted)
+  (setq org-odt-preferred-output-format "pptx")
   ;; org-mode search
   (setq org-agenda-text-search-extra-files
 	(directory-files-recursively (rod-concat-documents-dir "System/")
@@ -419,6 +424,9 @@ If OTHERS is true, skip all entries that do not correspond to TAG."
       (if (member tag (org-get-tags-at current-headline))
           next-headline
         nil))))
+
+(use-package org-contrib
+  :ensure t)
 
 ;; If you want to load these packages along with org-mode, you should add them
 ;; to org-modules list.
@@ -680,7 +688,7 @@ the first directory in `bibtex-completion-library-path'."
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 
 ;; diary
- (add-hook 'diary-list-entries-hook 'diary-sort-entries t)
+(add-hook 'diary-list-entries-hook 'diary-sort-entries t)
 
 ;; org-present
 (tool-bar-mode 0)
@@ -688,9 +696,33 @@ the first directory in `bibtex-completion-library-path'."
 (menu-bar-mode 0)
 (blink-cursor-mode 0)
 
-;; org-pomodoro
-(use-package org-pomodoro)
-(setq-default org-pomodoro-audio-player nil)
+(use-package org-pomodoro
+  :config
+  (setq org-pomodoro-keep-killed-pomodoro-time t
+	org-pomodoro-long-break-length 15
+	org-pomodoro-manual-break t
+	org-pomodoro-audio-player nil))
+
+(defun rod-org-pomodoro-10 ()
+  "Set org-pomodoro interval to 10 minures."
+  (interactive)
+  (setq
+   org-pomodoro-length 10
+   org-pomodoro-short-break-length 2))
+
+(defun rod-org-pomodoro-15 ()
+  "Set org-pomodoro interval to 15 minures."
+  (interactive)
+  (setq
+   org-pomodoro-length 15
+   org-pomodoro-short-break-length 3))
+
+(defun rod-org-pomodoro-20 ()
+  "Set org-pomodoro interval to 20 minures."
+  (interactive)
+  (setq
+   org-pomodoro-length 20
+   org-pomodoro-short-break-length 4))
 
 (use-package org-tidy
   :ensure t
@@ -735,6 +767,9 @@ the first directory in `bibtex-completion-library-path'."
   (deft-default-extension "org")
   (deft-directory org-roam-directory))
 
+(use-package org-roam-timestamps
+  :diminish org-roam-timestamps-mode)
+
 ;; helm-org-rifle
 (use-package helm-org-rifle
   :bind
@@ -749,8 +784,7 @@ the first directory in `bibtex-completion-library-path'."
 (use-package org-modern
   :config
   (setq org-hide-emphasis-markers t
-	org-pretty-entities t)
-  )
+	org-pretty-entities t))
 
 (use-package valign)
 
@@ -758,6 +792,27 @@ the first directory in `bibtex-completion-library-path'."
   "Go to the calendar heading of my GTD system."
   (interactive)
   (org-id-goto "a71c5010-9534-465f-948b-ad592c7fdd99"))
+
+;; org export inline css
+(defun my-org-inline-css-hook (exporter)
+  "Insert custom inline css."
+  (when (eq exporter 'html)
+    (let* ((dir (ignore-errors (file-name-directory (buffer-file-name))))
+           (path (concat dir "style.css"))
+           (homestyle (or (null dir) (null (file-exists-p path))))
+           (final (if homestyle (rod-concat-documents-dir "System/rod-org-export.css") path))) ;; <- set your own style file path
+      ;; (setq org-html-head-include-default-style nil)
+      (setq org-html-head (concat
+			   "<base target=\"_blank\">" ; otvori kazdy odkaz na novom tabe
+                           "<style type=\"text/css\">\n"
+                           "<!--/*--><![CDATA[/*><!--*/\n"
+                           (with-temp-buffer
+                             (insert-file-contents final)
+                             (buffer-string))
+                           "/*]]>*/-->\n"
+                           "</style>\n")))))
+(add-hook 'org-export-before-processing-hook 'my-org-inline-css-hook)
+;; (remove-hook 'org-export-before-processing-hook 'my-org-inline-css-hook)
 
 ;;; end org-mode
 
@@ -769,7 +824,7 @@ the first directory in `bibtex-completion-library-path'."
 	flycheck-html-tidy-executable "C:\\Program Files\\tidy 5.8.0\\bin\\tidy.exe"
 	lsp-fsharp-server-install-dir  (rod-concat-userprofile-dir
 					".dotnet/tools/")
-	python-shell-interpreter "c:/python312/python.exe"
+	python-shell-interpreter "c:/python313/python.exe"
 	woman-manpath
 	`("C:/tools/cygwin/usr/man"
 	  "C:/tools/cygwin/usr/share/man"
@@ -788,9 +843,7 @@ the first directory in `bibtex-completion-library-path'."
 	  ("/opt/bin" . "/opt/man")
 	  ("/opt/sbin" . "/opt/man")
 	  ,(rod-concat-documents-dir "Documents/Sources/linux/man-pages")
-	  "f:/usr/share/man")
-
-))
+	  "f:/usr/share/man")))
 
 ;;; markdown
 (use-package gh-md)
@@ -799,7 +852,8 @@ the first directory in `bibtex-completion-library-path'."
   ;; From spacemacs:
   ;; Make markdown-mode behave a bit more like org w.r.t. code blocks i.e.
   ;; use proper syntax highlighting
-  (setq markdown-fontify-code-blocks-natively t))
+  (setq markdown-fontify-code-blocks-natively t)
+  (setq markdown-enable-highlighting-syntax t))
 (use-package vmd-mode)
 
 ;;; html
@@ -813,6 +867,8 @@ the first directory in `bibtex-completion-library-path'."
 ;; code
 (add-hook 'sgml-mode-hook (lambda nil (setq-default skeleton-end-newline nil)))
 (defalias 'rod-html-convert-to-entity 'sgml-namify-char)
+
+(use-package svelte-mode)
 
 ;;; simple.el and general configuration
 
@@ -886,17 +942,17 @@ the first directory in `bibtex-completion-library-path'."
   (setq
    eshell-cmpl-use-paring nil
    eshell-hist-ignoredups t
-   eshell-history-size 512
-   ;; eshell-prompt-function
-   ;; '(lambda nil
-   ;;    #("$ " 0 2
-   ;; 	(rear-nonsticky
-   ;; 	 (font-lock-face read-only)
-   ;; 	 front-sticky
-   ;; 	 (font-lock-face read-only)
-   ;; 	 font-lock-face eshell-prompt read-only t)))
-   ;; eshell-prompt-regexp "^$ "
-   )
+   eshell-history-size 512)
+  (if nil
+      (setq eshell-prompt-function
+	    '(lambda nil
+	       #("$ " 0 2
+		 (rear-nonsticky
+		  (font-lock-face read-only)
+		  front-sticky
+		  (font-lock-face read-only)
+		  font-lock-face eshell-prompt read-only t)))
+	    eshell-prompt-regexp "^$ "))
   (add-hook 'eshell-mode-hook
             (lambda ()
               (define-key eshell-mode-map (kbd "C-c C-r") #'helm-eshell-history))))
@@ -933,7 +989,7 @@ the first directory in `bibtex-completion-library-path'."
 	 ;; ("C-x b" . helm-mini)
 	 ;; ("C-x b" . switch-to-buffer)
 	 ("C-x b" . helm-buffers-list)
-	 ;; ("C-x C-b" . helm-mini)
+	 ("C-x C-b" . helm-mini)
 	 ("C-x C-f" . helm-find-files)
 	 ("C-x C-r" . helm-recentf)
 	 ;; ("C-c g" . helm-grep-do-git-grep)
@@ -1037,27 +1093,6 @@ the first directory in `bibtex-completion-library-path'."
   (interactive)
   (move-end-of-line nil)
   (newline-and-indent))
-
-;; org export inline css
-(defun my-org-inline-css-hook (exporter)
-  "Insert custom inline css."
-  (when (eq exporter 'html)
-    (let* ((dir (ignore-errors (file-name-directory (buffer-file-name))))
-           (path (concat dir "style.css"))
-           (homestyle (or (null dir) (null (file-exists-p path))))
-           (final (if homestyle (rod-concat-documents-dir "System/rod-org-export.css") path))) ;; <- set your own style file path
-      ;; (setq org-html-head-include-default-style nil)
-      (setq org-html-head (concat
-			   "<base target=\"_blank\">" ; otvori kazdy odkaz na novom tabe
-                           "<style type=\"text/css\">\n"
-                           "<!--/*--><![CDATA[/*><!--*/\n"
-                           (with-temp-buffer
-                             (insert-file-contents final)
-                             (buffer-string))
-                           "/*]]>*/-->\n"
-                           "</style>\n")))))
-(add-hook 'org-export-before-processing-hook 'my-org-inline-css-hook)
-;; (remove-hook 'org-export-before-processing-hook 'my-org-inline-css-hook)
 
 ;;; personal global keybindings
 
@@ -1312,7 +1347,38 @@ If I let Windows handle DPI everything looks blurry."
 	(holiday-fixed 12 24 "Štedrý deň")
 	(holiday-fixed 12 26 "Druhý sviatok vianočný")))
 
+;; projectile
+(use-package projectile
+  ;; 2024-12-01 Have to turn this off.
+  ;; projectile-track-known-projects-find-file-hook is slowing down everything
+  ;; (org-mode and company completions)
+
+  ;; :hook (prog-mode-hook . projectile-mode)
+  ;; (remove-hook 'prog-mode-hook 'projectile-mode)
+  :bind
+  ("C-c p" . projectile-command-map)
+  :diminish projectile-mode
+  :config
+  (setq projectile-globally-ignored-file-suffixes
+	'(".eps" ".bst" ".aux" ".bbl" ".bcf" ".blg" ".fdb_latexmk" ".fls" ".lof" ".lot" ".out" ".pri" ".tox")))
+
 (use-package astro-ts-mode)
+
+(use-package lark-mode)
+
+;; 2025-10-18: On Linux this causes
+;; Debugger entered--Lisp error: (file-missing "Cannot open load file" "No such file or directory" "hl-todo")
+;;   hl-todo-mode()
+;;   run-hooks(change-major-mode-after-body-hook prog-mode-hook lisp-data-mode-hook emacs-lisp-mode-hook lisp-interaction-mode-hook)
+;;   apply(run-hooks change-major-mode-after-body-hook (prog-mode-hook lisp-data-mode-hook emacs-lisp-mode-hook lisp-interaction-mode-hook))
+;;   run-mode-hooks(lisp-interaction-mode-hook)
+;;   lisp-interaction-mode()
+;;   command-line()
+;;   normal-top-level()
+;; why?
+;; (use-package hl-todo
+;;   :ensure t
+;;   :hook ((prog-mode-hook . hl-todo-mode)))
 
 ;; inspired by https://github.com/xiaoxinghu/dotfiles/blob/master/emacs/.emacs.d/modules/treesitter.el
 (use-package treesit
@@ -1355,12 +1421,12 @@ If I let Windows handle DPI everything looks blurry."
 (setq major-mode-remap-alist
  '((python-mode . python-ts-mode)))
 
+(use-package web-mode)
+
 (use-package php-mode
   :mode ("\\.php\\'" . php-mode))
 
 ;;; auctex
-;(require 'tex-site)			; TODO: Why is this here? This shouldn't
-					; really be here. Can you debug it?
 (use-package tex
   ;; Test if work on Windows or change to auctex
   :ensure nil				; package is called auctex
@@ -1408,13 +1474,13 @@ If I let Windows handle DPI everything looks blurry."
   ;; output PDF, not DVI
   (setq auctex-latexmk-inherit-TeX-PDF-mode t))
 
-(use-package lsp-latex
-  :hook
-  (tex-mode-hook    . lsp)
-  (latex-mode-hook  . lsp)
-  (LaTeX-mode-hook  . lsp)
-  (yatex-mode-hook  . lsp)
-  (bibtex-mode-hook . lsp))
+;; (use-package lsp-latex
+;;   :hook
+;;   (tex-mode-hook    . lsp-deferred)
+;;   (latex-mode-hook  . lsp-deferred)
+;;   (LaTeX-mode-hook  . lsp-deferred)
+;;   (yatex-mode-hook  . lsp-deferred)
+;;   (bibtex-mode-hook . lsp-deferred))
 
 (use-package outline
   :ensure nil
@@ -1451,6 +1517,8 @@ If I let Windows handle DPI everything looks blurry."
     (advice-add 'help-do-xref :after (lambda (_pos _func _args)
 				       (setq-local tab-width 8)))))
 
+(use-package csv-mode)
+
 ;; quickrun from spacemacs
 (use-package quickrun)
   ;; :init
@@ -1469,9 +1537,10 @@ If I let Windows handle DPI everything looks blurry."
 ;; After installing a new version of python, run this in an administrator shell:
 ;; `pip install pylint flake8'
 (when (eq system-type 'windows-nt)
-      (setq flycheck-python-pylint-executable "c:/python312/python.exe")
-      (setq flycheck-python-flake8-executable "c:/python312/python.exe")
-      (setq flycheck-python-pycompile-executable "c:/python312/python.exe"))
+  (setq flycheck-python-pylint-executable python-shell-interpreter)
+  (setq flycheck-python-flake8-executable python-shell-interpreter)
+  (setq flycheck-python-pycompile-executable python-shell-interpreter)
+  (setq flycheck-json-python-json-executable python-shell-interpreter))
 
 ;; lsp python
 
@@ -1479,7 +1548,7 @@ If I let Windows handle DPI everything looks blurry."
   :mode (("SConstruct\\'" . python-ts-mode) ("SConscript\\'" . python-ts-mode))
   :hook (python-ts-mode-hook . (lambda ()
 			      ;; (require 'lsp-pylsp)
-			      (lsp)
+			      ;; (lsp-deferred)
 			      )))
 (use-package blacken)
 (use-package pyvenv)
@@ -1491,7 +1560,7 @@ If I let Windows handle DPI everything looks blurry."
 (use-package pyenv-mode)
 (use-package sphinx-doc)
 (use-package python-docstring)
-;; pip install python-lsp-server
+;; pip.exe install 'python-lsp-server[all]'
 
 ;;; Rust
 
@@ -1505,6 +1574,13 @@ If I let Windows handle DPI everything looks blurry."
   :init
   (with-eval-after-load 'flycheck
     (push 'rustic-clippy flycheck-checkers)))
+
+;; Installation of clippy:
+;; rustup update
+;; rustup component add clippy
+
+;; rustup component add rust-analyzer
+
 ;; Is cargo needed?
 ;; (use-package cargo)
 (use-package toml-mode
@@ -1515,6 +1591,53 @@ If I let Windows handle DPI everything looks blurry."
 (use-package flycheck-rust
   :defer t
   :init (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+
+;; Rust eglot can't find correct project root. This fixes it. Thanks Martin.
+;; https://github.com/emacs-rustic/rustic/issues/110
+(defun mg/cargo-toml-is-workspace (dir)
+  "Return non-nil if DIR contains a workspace Cargo.toml file."
+  (let ((cargo-toml (file-name-concat dir "Cargo.toml")))
+    (when (file-exists-p cargo-toml)
+      (with-temp-buffer
+        (insert-file-contents-literally cargo-toml)
+        (goto-char (point-min))
+        (search-forward-regexp "^\\[workspace\\]" nil t)))))
+
+(defun mg/project-find-rust-project (dir)
+  "Find a Rust project root, prioritizing workspaces."
+  (let ((ws-root (locate-dominating-file dir #'mg/cargo-toml-is-workspace)))
+    (cond
+     ;; Priority 1: A Cargo workspace was found. Use it directly.
+     (ws-root (cons 'cargo-project ws-root))
+
+     ;; Priority 2: No workspace, so find the nearest `Cargo.toml`.
+     ((when-let ((cargo-dir (locate-dominating-file dir "Cargo.toml")))
+        (let* ((vcs-root (vc-root-dir))
+               (project-root
+                (if-let ((vcs-root-path (and vcs-root (file-name-as-directory vcs-root))))
+                    ;; A VCS root exists. Decide based on nesting depth.
+                    (let* ((cargo-path (file-name-as-directory cargo-dir))
+                           (relative-path (file-relative-name cargo-path vcs-root-path))
+                           (depth (cl-count ?\/ relative-path)))
+                      (if (> depth 1)
+                          ;; Deeper than 1 level: use the Cargo.toml dir.
+                          cargo-dir
+                        ;; 0 or 1 level deep: use the VCS root.
+                        vcs-root))
+                  ;; No VCS root found, so the Cargo.toml dir is the best we can do.
+                  cargo-dir)))
+          (cons 'cargo-project project-root)))))))
+
+;; Teach project.el how to extract the root from our 'cargo-project type.
+(cl-defmethod project-root ((project (head cargo-project)))
+  (cdr project))
+
+;; Add our new function to the front of `project-find-functions` to give it
+;; priority over the default VCS-based discovery.
+(use-package project
+  :config
+  (add-to-list 'project-find-functions #'mg/project-find-rust-project))
+
 
 (defun rod-copy-whole-buffer ()
   "Copy whole buffer."
@@ -1786,7 +1909,7 @@ the current file selected."
   (switch-to-buffer chronos--buffer))
 
 (defun rod-zarnovica ()
-  "Count time until Žarnovica fron Žiar nad Hronom."
+  "Count time until Žarnovica from Žiar nad Hronom."
   (interactive)
   (chronos-add-timer "12" "Žarnovica" nil)
   (switch-to-buffer chronos--buffer))
@@ -1997,6 +2120,7 @@ Windows format."
 (use-package general
   :config
   (general-override-mode 1)
+  ; This one is not that good, as it's used in other modes, such as gnus.
   (general-create-definer rod-general-definer
 			  :prefix "M-n")
   (rod-general-definer
@@ -2158,21 +2282,6 @@ Windows format."
            (let ((pdf-info-restart-process-p t))
 	     (pdf-tools-install-noverify))))))
     (message "PDF Tools not activated")))
-
-;; projectile
-(use-package projectile
-  ;; 2024-12-01 Have to turn this off.
-  ;; projectile-track-known-projects-find-file-hook is slowing down everything
-  ;; (org-mode and company completions)
-
-  ;; :hook (prog-mode-hook . projectile-mode)
-  ;; (remove-hook 'prog-mode-hook 'projectile-mode)
-  :bind
-  ("C-c p" . projectile-command-map)
-  :diminish projectile-mode
-  :config
-  (setq projectile-globally-ignored-file-suffixes
-	'(".eps" ".bst" ".aux" ".bbl" ".bcf" ".blg" ".fdb_latexmk" ".fls" ".lof" ".lot" ".out" ".pri" ".tox")))
 
 ;; smartparens
 
@@ -2421,8 +2530,8 @@ Windows format."
 
 (when (eq system-type 'windows-nt)
       ;; use GNU tools from cygwin
-      (add-to-list 'exec-path "C:/tools/cygwin/bin")
-      (setenv "PATH" (concat "C:\\tools\\cygwin\\bin;" (getenv "PATH")))
+      (add-to-list 'exec-path "C:/tools/cygwin/bin" t)
+      (setenv "PATH" (concat (getenv "PATH") ";C:\\tools\\cygwin\\bin"))
 
       (setq ispell-program-name "aspell.exe")
       (setq ispell-aspell-dict-dir "c:/tools/cygwin/lib/aspell-0.60")
@@ -2459,6 +2568,8 @@ Windows format."
 
 ;; wait for Emacs 30
 ;; (use-package corfu)
+
+(use-package eglot)
 
 (use-package lsp-mode
   :diminish lsp-mode
@@ -2497,12 +2608,6 @@ Windows format."
        (when (byte-code-function-p bytecode)
          (funcall bytecode))))
    (apply old-fn args)))
-(advice-add (if (progn (require 'json)
-                       (fboundp 'json-parse-buffer))
-                'json-parse-buffer
-              'json-read)
-            :around
-            #'lsp-booster--advice-json-parse)
 
 (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
   "Prepend emacs-lsp-booster command to lsp CMD."
@@ -2518,7 +2623,16 @@ Windows format."
           (message "Using emacs-lsp-booster for %s!" orig-result)
           (cons "emacs-lsp-booster" orig-result))
       orig-result)))
-(advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
+
+;; Turned off temporarily, uncomment to turn on lsp-booster
+;;
+;; (advice-add (if (progn (require 'json)
+;;                        (fboundp 'json-parse-buffer))
+;;                 'json-parse-buffer
+;;               'json-read)
+;;             :around
+;;             #'lsp-booster--advice-json-parse)
+;; (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
 
 (use-package company
   :diminish company-mode
@@ -2542,7 +2656,7 @@ Windows format."
 
 (use-package typescript-mode)
 
-(use-package lsp-java :config (add-hook 'java-mode-hook 'lsp))
+(use-package lsp-java :config (add-hook 'java-mode-hook 'lsp-deferred))
 
 ;;; golang
 (use-package go-mode
@@ -2614,6 +2728,56 @@ Windows format."
   (interactive)
   (insert "latexmk -pdf --synctex=1 -interaction=nonstopmode -file-line-error "))
 
+
+
+
+(defun rod-org-replace-timestamp-at-point (&optional format-string)
+  "Replace org-mode timestamp at point with custom format.
+FORMAT is a format string for `format-time-string'.
+If not provided, prompts user for format.
+Default format is '%B %d, %Y' (e.g., 'March 15, 2024')."
+  (interactive)
+  (cl-block block
+    (when (org-at-timestamp-p t)
+      ;; Move point to beginning of timestamp for org-element-timestamp-parser
+      ;; (skip-chars-backward "^<[")
+      ;; (forward-char -1)
+      ;; (when (looking-at "[<[]")
+        ;; (forward-char 0)) ; Ensure we're at the opening bracket
+      (let* ((timestamp (org-element-timestamp-parser))
+             (start (org-element-property :begin timestamp))
+             (end (org-element-property :end timestamp))
+             ;; Extract time components
+             (year (org-element-property :year-start timestamp))
+             (month (org-element-property :month-start timestamp))
+             (day (org-element-property :day-start timestamp))
+             (hour (org-element-property :hour-start timestamp))
+             (minute (org-element-property :minute-start timestamp))
+             ;; Create time for formatting
+             (time (encode-time (list 0
+				      (or minute 0)
+				      (or hour 0)
+				      day month year)))
+             ;; Format the timestamp
+             (formatted-date (format-time-string format-string time))
+	     )
+	;; (message "%s" timestamp)
+	;; (cl-return-from block)
+	;; Replace the timestamp
+	(goto-char start)
+	(delete-region start (1- end)) ; -1 to avoid trailing space
+	(insert formatted-date)
+	;; (message "Replaced timestamp with: %s" formatted-date)
+	))))
+
+(defun rod-org-replace-timestamp-slovak-format ()
+  "Replace timestamp with ISO format (2024-03-15)."
+  (interactive)
+  (rod-org-replace-timestamp-at-point "%d.%m.%Y"))
+
+
+
+
 (use-package solaire-mode
   :init
   (solaire-mode))
@@ -2652,6 +2816,7 @@ Windows format."
 	;; x-underline-at-descent-line t))
 
 ;; magit
+(use-package magit)
 (setq-default magit-revert-buffers 1)
 
 ;; my own packages and modes
@@ -2760,8 +2925,9 @@ Windows format."
 ;; (require 'fakecygpty)
 ;; (fakecygpty-activate)
 
-;; (require 'cygwin-mount)
-;; (cygwin-mount-activate)
+;; (when (eq system-type 'windows-nt)
+;;   (require 'cygwin-mount)
+;;   (cygwin-mount-activate))
 
 
 ;; git-package to easily install packages from git repositories
@@ -2812,14 +2978,14 @@ Windows format."
   :ensure nil
   :diminish auto-revert-mode)
 
-(require 'good-scroll)
-(use-package good-scroll
-  :bind (
-	 ;; ([next] . good-scroll-up-full-screen)
-	 ;; ([prior] . good-scroll-down-full-screen)
-	 ([next] . scroll-up-command)
-	 ([prior] . scroll-down-command)
-	 ))
+;; (require 'good-scroll)
+;; (use-package good-scroll
+;;   :bind (
+;; 	 ;; ([next] . good-scroll-up-full-screen)
+;; 	 ;; ([prior] . good-scroll-down-full-screen)
+;; 	 ([next] . scroll-up-command)
+;; 	 ([prior] . scroll-down-command)
+;; 	 ))
 
 (use-package emacs
   :ensure nil
@@ -2916,6 +3082,7 @@ Windows format."
  '(dired-recursive-copies 'always)
  '(display-battery-mode t)
  '(dynamic-completion-mode t)
+ '(ediff-split-window-function 'split-window-horizontally)
  '(ef-themes-variable-pitch-ui t)
  '(electric-indent-mode t)
  '(electric-pair-mode nil)
@@ -2923,7 +3090,7 @@ Windows format."
  '(elfeed-search-filter "@6-months-ago")
  '(epg-debug t)
  '(epg-passphrase-coding-system 'utf-8)
- '(eshell-cmpl-use-paring nil)
+ '(eshell-cmpl-use-paring nil t)
  '(evil-default-state 'emacs)
  '(evil-symbol-word-search t)
  '(ffap-file-name-with-spaces t)
@@ -2939,6 +3106,8 @@ Windows format."
  '(helm-autoresize-mode t)
  '(helm-candidate-number-limit 50)
  '(helm-org-ignore-autosaves t)
+ '(hl-todo-color-background nil)
+ '(hl-todo-text-modes '(js-json-mode text-mode))
  '(httpd-port 8081)
  '(ignored-local-variable-values
    '((eval font-lock-add-keywords nil
@@ -2955,6 +3124,7 @@ Windows format."
  '(image-dired-cmd-create-thumbnail-program "magick")
  '(image-dired-thumb-relief 0)
  '(image-use-external-converter t)
+ '(imagemagick-types-inhibit '(C HTML HTM INFO M TXT PDF JPEG JPG))
  '(insert-shebang-ignore-extensions '("txt" "org" "el" "py" "php"))
  '(ivy-height 20)
  '(ivy-hooks-alist '((t . toggle-input-method)))
@@ -2963,6 +3133,7 @@ Windows format."
  '(line-number-mode t)
  '(lsp-enable-indentation nil)
  '(lsp-progress-spinner-type 'vertical-rising)
+ '(lsp-ruff-server-command '("ruff" "server" "--preview"))
  '(lsp-signature-render-documentation nil)
  '(lsp-ui-doc-border "blue2")
  '(magic-latex-enable-block-align nil)
@@ -2988,6 +3159,7 @@ Windows format."
  '(org-capture-use-agenda-date t)
  '(org-clock-report-include-clocking-task t)
  '(org-confirm-babel-evaluate nil)
+ '(org-enforce-todo-dependencies t)
  '(org-expiry-inactive-timestamps t)
  '(org-export-in-background nil)
  '(org-file-apps
@@ -3019,7 +3191,7 @@ Windows format."
  '(org-pomodoro-keep-killed-pomodoro-time t)
  '(org-pomodoro-long-break-length 15)
  '(org-pomodoro-manual-break t)
- '(org-refile-use-outline-path t)
+ '(org-refile-use-outline-path t t)
  '(org-roam-file-exclude-regexp "\\.gpg$")
  '(org-src-lang-modes
    '(("C" . c) ("C++" . c++) ("asymptote" . asy) ("bash" . sh) ("beamer" . latex)
@@ -3040,9 +3212,10 @@ Windows format."
 		   cargo chronos company counsel deft diminish dired-recent
 		   doom-themes drag-stuff edit-server ein elfeed ellama
 		   engrave-faces esup evil-numbers evil-org expand-region
-		   flycheck-rust fsharp-mode general gh-md gnus-notes go-mode
-		   good-scroll gptel helm-bibtex helm-lsp helm-org
-		   helm-org-rifle insert-shebang keyfreq lsp-java lsp-latex
+		   flycheck-rust fsharp-mode general gh-md
+		   gnu-elpa-keyring-update gnus-notes go-mode good-scroll gptel
+		   helm-bibtex helm-lsp helm-org helm-org-rifle hl-todo
+		   insert-shebang keyfreq kv lark-mode lsp-java lsp-latex
 		   lsp-ui lua-mode magic-latex-buffer magit modus-themes
 		   name-this-color nasm-mode neotree nerd-icons-dired notmuch
 		   org-contrib org-journal org-mime org-modern org-mru-clock
@@ -3050,11 +3223,11 @@ Windows format."
 		   org-roam-timestamps org-roam-ui org-tidy org-trello
 		   org-web-tools php-mode pip-requirements pipenv pippel
 		   pkg-info popup projectile py-isort pydoc pyenv-mode
-		   python-docstring quickrun rg ron-mode rust-mode rustic
+		   python-docstring quickrun rg ron-mode rustic
 		   saveplace-pdf-view slime smartparens smtpmail-multi
 		   solaire-mode sphinx-doc svelte-mode toml-mode
 		   typescript-mode use-package valign vmd-mode vue-mode
-		   which-key window-purpose x86-lookup yaml-mode
+		   web-mode which-key window-purpose x86-lookup yaml-mode
 		   yasnippet-snippets))
  '(pdf-view-continuous t)
  '(pdf-view-selection-style 'glyph)
@@ -3100,6 +3273,7 @@ Windows format."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(eglot-highlight-symbol-face ((t (:inherit highlight))))
  '(fixed-pitch ((t (:inherit default))))
  '(helm-M-x-short-doc ((t (:foreground "DimGray"))))
  '(helm-candidate-number ((((class color) (min-colors 256)) :background "#bfc9ff" :foreground "#000000")))
@@ -3254,7 +3428,16 @@ Windows format."
 	`(
 	  (bg-mode-line-active      "#cab9b2")
 	  ))
-  (defun rod-modus-themes-custom-faces ()
+  
+
+  ;; Hook doesn't work. Don't know why. Calling it explicitly after loading the
+  ;; theme four lines below.
+  ;;
+  (add-hook 'modus-themes-after-load-theme-hook #'rod-modus-themes-custom-faces)
+  
+  )
+
+(defun rod-modus-themes-custom-faces ()
     (modus-themes-with-colors
       (custom-set-faces
        ;; Make tooltips readable --RP
@@ -3286,15 +3469,58 @@ Windows format."
        `(lsp-ui-doc-background ((,c :background ,bg-main)))
        ;; Because lsp-ui-doc draws it badly
        `(markdown-code-face ((,c :background ,bg-main)))
+       ;; I took these from another custom-set-faces block. According to the
+       ;; documentation, there should be only one. Maybe that's why I had
+       ;; problem with loading of modus-themes (incorrect colors). We'll se if
+       ;; this helps.
+       '(fixed-pitch ((t (:inherit default))))
+       '(helm-M-x-short-doc ((t (:foreground "DimGray"))))
+       '(org-modern-label ((t (:box (:line-width (-3 . 1) :color "#ffffff") :underline nil :weight regular :width condensed))))
+       '(variable-pitch ((t (:family "IBM Plex Sans"))))
        )))
 
-  ;; Hook doesn't work. Don't know why. Calling it explicitly after loading the
-  ;; theme four lines below.
-  ;;
-  (add-hook 'modus-themes-after-load-theme-hook #'rod-modus-themes-custom-faces)
-  (load-theme 'modus-vivendi :no-confim)
-  (rod-modus-themes-custom-faces)
-  )
+(load-theme 'modus-vivendi :no-confim)
+(modus-themes-with-colors
+      (custom-set-faces
+       ;; Make tooltips readable --RP
+       `(tooltip ((,c :background ,bg-blue-subtle :foreground ,fg-main)))
+       ;; Add "padding" to the mode lines
+       `(mode-line ((,c :box (:line-width 3 :color ,bg-mode-line-active))))
+       `(mode-line-inactive ((,c :box (:line-width 3 :color ,bg-mode-line-inactive))))
+       ;;;; helm
+       `(helm-selection              ((,c :inherit bold :background ,bg-hl-line :extend t :distant-foreground ,magenta-cooler)))
+       `(helm-match                  ((,c :inherit bold :foreground ,magenta-cooler :distant-foreground ,fg-main)))
+       `(helm-source-header          ((,c :background ,bg-inactive :foreground ,keyword :weight bold)))
+       `(helm-visible-mark           ((,c :inherit (bold highlight))))
+       `(helm-moccur-buffer          ((,c :inherit link)))
+       `(helm-ff-file                ((,c :foreground ,fg-main)))
+       `(helm-ff-prefix              ((,c :foreground ,keyword)))
+       `(helm-ff-dotted-directory    ((,c :foreground ,fg-alt)))
+       `(helm-ff-directory           ((,c :foreground ,variable)))
+       `(helm-ff-executable          ((,c :foreground ,fg-main :inherit italic)))
+       `(helm-grep-match             ((,c :foreground ,magenta-cooler :distant-foreground ,red-cooler)))
+       `(helm-grep-file              ((,c :foreground ,fnname)))
+       `(helm-grep-lineno            ((,c :foreground ,fg-alt)))
+       `(helm-grep-finish            ((,c :foreground ,cyan-cooler)))
+       `(helm-locate-finish          ((,c :foreground ,green)))
+       `(helm-separator              ((,c :foreground ,red-warmer)))
+       `(helm-candidate-number       ((,c :background ,bg-blue-intense :foreground ,fg-main)))
+       `(helm-lisp-show-completion   ((,c :background ,bg-sage)))
+       `(org-agenda-date-today       ((,c :inherit org-agenda-date :background ,bg-blue-nuanced :underline nil)))
+       `(holiday ((,c :background ,bg-magenta-nuanced :foreground ,date-holiday)))
+       `(lsp-ui-doc-background ((,c :background ,bg-main)))
+       ;; Because lsp-ui-doc draws it badly
+       `(markdown-code-face ((,c :background ,bg-main)))
+       ;; I took these from another custom-set-faces block. According to the
+       ;; documentation, there should be only one. Maybe that's why I had
+       ;; problem with loading of modus-themes (incorrect colors). We'll se if
+       ;; this helps.
+       '(fixed-pitch ((t (:inherit default))))
+       '(helm-M-x-short-doc ((t (:foreground "DimGray"))))
+       '(org-modern-label ((t (:box (:line-width (-3 . 1) :color "#ffffff") :underline nil :weight regular :width condensed))))
+       '(variable-pitch ((t (:family "IBM Plex Sans"))))
+       ))
+;; (rod-modus-themes-custom-faces)
 
 ;;; diminish
 
