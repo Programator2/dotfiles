@@ -25,6 +25,8 @@
 
 ;;; Code:
 
+(setq debug-on-error t)
+
 ;; garbage collection activates above 384 MB or when 60 % of the heap has been
 ;; allocated (thanks spacemacs project)
 (setq gc-cons-threshold 402653184 gc-cons-percentage 0.6)
