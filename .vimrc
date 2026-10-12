@@ -15,6 +15,7 @@ packadd! matchit	" plugin, ktory vylepsuje %
 set path+=**		" :find vyhlada aj podadresare
 let c_space_errors = 1  " vyznaci opustene prazdne znaky
 set scrolloff=0         " kurzor moze byt umiestneny na okraji obrazovky
+set mouse=              " mouse can be used to copy/paste in terminal emulator
 
 " prikaz na vytvorenie tagov
 command! MakeTags !ctags -R .
