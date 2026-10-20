@@ -1,0 +1,13 @@
+# Inspired from https://pastebin.com/tPvXxMPE
+
+shell /bin/fish
+
+# detach on hangup
+autodetach on
+
+# scroll back
+defscrollback 5000
+
+# Set the altscreen so that when you quit vi, it will go back to
+# what it was before
+altscreen on
